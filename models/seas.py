@@ -1,13 +1,8 @@
-# -*- coding: UTF-8 -*-
-# @Author: Yimin Jiang
-
 import torch
 import torch.nn as nn
 from torch import Tensor
-import random
 from torch.nn import (
-    functional as F, Module, Sequential, Identity, BatchNorm1d, AdaptiveMaxPool2d, AdaptiveAvgPool2d, LayerNorm,
-    Dropout
+    functional as F, Module, Sequential, Identity, BatchNorm1d
 )
 from torchvision.models.detection._utils import BoxCoder, _box_loss
 from torchvision.models.detection.rpn import AnchorGenerator, RegionProposalNetwork, RPNHead
@@ -16,7 +11,6 @@ from torchvision.ops import MultiScaleRoIAlign
 from torchvision.ops import boxes as box_ops
 
 from typing import Tuple, List, Union, Dict, Optional, Any
-from collections import OrderedDict
 
 from .backbones.resnet import ResNetBackbone, ResNetHead
 from .backbones.convnext import ConvNeXtBackbone, ConvNeXtHead
@@ -120,7 +114,7 @@ class SEAS(Module):
 
         ''' build aggregation network ----------------------------------------------------------------------------- '''
         self.aggregation_network = AggregationNetwork(
-            projection_dim=512,
+            projection_dim=cfg.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS,
             feature_dims=[1280, 1280, 1280, 1280, 1280, 1280, 640, 640, 640, 320, 320, 320],
             device=cfg.DEVICE,
         )
@@ -139,8 +133,7 @@ class SEAS(Module):
             aspect_ratios=cfg.MODEL.RPN.ANCHOR_RATIO,
         )
         rpn_head = RPNHead(
-            #in_channels=self.backbone.out_channels_list[-1],
-            in_channels=512,
+            in_channels=cfg.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS,
             num_anchors=anchor_generator.num_anchors_per_location()[0],
         )
         self.rpn = RegionProposalNetwork(

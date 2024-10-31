@@ -9,3 +9,4 @@ sd_*/
 **__pycache__**
 vis
 logs
+visualization/
