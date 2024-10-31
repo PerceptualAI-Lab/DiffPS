@@ -1,0 +1,4 @@
+base_dir: ../../ModelWeights/SOLIDER
+tiny: swin_tiny.pth
+small: swin_small.pth
+base: swin_base.pth

@@ -1,0 +1,11 @@
+weights/
+wandb/
+out/
+ckpt/
+data/
+demo_imgs/
+exp_prw/
+sd_*/
+**__pycache__**
+vis
+logs
