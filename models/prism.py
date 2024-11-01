@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 from torch.nn import (
-    functional as F, Module, Sequential, Identity, BatchNorm1d
+    functional as F, Module
 )
 from torchvision.models.detection._utils import BoxCoder, _box_loss
 from torchvision.models.detection.rpn import AnchorGenerator, RegionProposalNetwork, RPNHead
@@ -15,11 +15,8 @@ from typing import Tuple, List, Union, Dict, Optional, Any
 from .backbones.resnet import ResNetBackbone, ResNetHead
 from .backbones.convnext import ConvNeXtBackbone, ConvNeXtHead
 from .backbones.solider import SOLIDERBackbone, SOLIDERHead
-from .losses.boim import BidirectionalOnlineInstanceMatchingLoss
-from .losses.bnr import BackgroundNoiseReductionLoss
 from .modules.box_predictor import BoxPredictor
-from .modules.momentum_batch_norm import MomentumBatchNorm
-from .modules.heads import TripleConvHead
+from .losses.oim import OIMLoss
 
 from models.embedder import MultiGranularityEmbedding, GlobalFeatureEmbedding, Embedder
 
@@ -57,7 +54,7 @@ class Initializer:
         self._initialize(module)
 
 
-class SEAS(Module):
+class PRISM(Module):
     def __init__(self, cfg):
         super().__init__()
         initialize = Initializer(cfg.MODEL.PARAM_INIT)
@@ -72,60 +69,98 @@ class SEAS(Module):
         )
 
         ''' build feature extractor -------------------------------------------------------------------------------- '''
-        
-        self.diffusion_feature = dict(
-            layer={layer: True for layer in cfg.FEATURE_EXTRACTOR.LAYER}
-        )
-        
-        self.feature_extractor = FeatureExtractor(
-            layer=self.diffusion_feature['layer'],
-            version=cfg.FEATURE_EXTRACTOR.VERSION,
-            device=cfg.DEVICE,
-            attention=cfg.FEATURE_EXTRACTOR.ATTENTION,
-            img_size=cfg.FEATURE_EXTRACTOR.IMAGE_SIZE[0],
-            train_unet=cfg.FEATURE_EXTRACTOR.TRAIN_UNET,
-            dtype='float32' if cfg.FEATURE_EXTRACTOR.TRAIN_UNET else 'float16',
-        )
-        
-        self.t = cfg.FEATURE_EXTRACTOR.TIMESTEP
-        self.prompt_embeds = self.feature_extractor.encode_prompt(cfg.FEATURE_EXTRACTOR.PROMPT)
-        self.feature_extractor.offload_prompt_encoder(persistent=True)  # to save some vram
+        self.decouple = cfg.FEATURE_EXTRACTOR.DECOUPLE
         self.feature_map_size = cfg.FEATURE_EXTRACTOR.FEATURE_MAP_SIZE
         
-        if cfg.FEATURE_EXTRACTOR.PROMPT_TUNING:
-            self.prompt_embeds = list(self.prompt_embeds)
-            target = [0]
-            if self.prompt_embeds[2] is not None:
-                target += [2]
-            meta_prompts = []
-            for i in target:
-                shape = [self.prompt_embeds[i].shape[j] for j in range(len(self.prompt_embeds[i].shape))]
-                # if len(shape) == 3:
-                #     shape[1] = 20
-                meta_prompt = nn.Parameter(
-                    torch.randn(shape, dtype=torch.float32),
-                    requires_grad=True
-                )
-                # setattr(self, f"meta_prompt{i}", meta_prompt)
-                meta_prompts.append(meta_prompt)
-                self.prompt_embeds[i] = meta_prompt 
-            self.meta_prompts = torch.nn.ParameterList(meta_prompts)        
+        if self.decouple:
+            self.detection_layer_dict = dict(
+                layer={layer: True for layer in cfg.FEATURE_EXTRACTOR.DETECTION_LAYER}
+            )
+            self.reid_layer_dict = dict(
+                layer={layer: True for layer in cfg.FEATURE_EXTRACTOR.REID_LAYER}
+            )
+            self.combined_layer_dict = dict(
+                layer={layer: True for layer in cfg.FEATURE_EXTRACTOR.DETECTION_LAYER + cfg.FEATURE_EXTRACTOR.REID_LAYER}
+            )
+            
+            self.decoupled_feature_extractor = FeatureExtractor(
+                layer=self.combined_layer_dict['layer'],
+                version=cfg.FEATURE_EXTRACTOR.VERSION,
+                device=cfg.DEVICE,
+                attention=cfg.FEATURE_EXTRACTOR.ATTENTION,
+                img_size=cfg.FEATURE_EXTRACTOR.IMAGE_SIZE[0],
+            )
+            self.detection_t = cfg.FEATURE_EXTRACTOR.DETECTION_TIMESTEP
+            self.reid_t = cfg.FEATURE_EXTRACTOR.REID_TIMESTEP
+            self.prompt_embeds = self.decoupled_feature_extractor.encode_prompt(cfg.FEATURE_EXTRACTOR.PROMPT)
+            self.decoupled_feature_extractor.offload_prompt_encoder(persistent=True)
+            
+        else:
+            self.shared_layer_dict = dict(
+                layer={layer: True for layer in cfg.FEATURE_EXTRACTOR.SHARED_LAYER}
+            )
+            
+            self.shared_feature_extractor = FeatureExtractor(
+                layer=self.shared_layer_dict['layer'],
+                version=cfg.FEATURE_EXTRACTOR.VERSION,
+                device=cfg.DEVICE,
+                attention=cfg.FEATURE_EXTRACTOR.ATTENTION,
+                img_size=cfg.FEATURE_EXTRACTOR.IMAGE_SIZE[0],
+                train_unet=cfg.FEATURE_EXTRACTOR.TRAIN_UNET,
+                dtype='float32' if cfg.FEATURE_EXTRACTOR.TRAIN_UNET else 'float16',
+            )
+            
+            self.t = cfg.FEATURE_EXTRACTOR.SHARED_TIMESTEP
+            self.prompt_embeds = self.shared_feature_extractor.encode_prompt(cfg.FEATURE_EXTRACTOR.PROMPT)
+            self.shared_feature_extractor.offload_prompt_encoder(persistent=True)  # to save some vram
+            
+            if cfg.FEATURE_EXTRACTOR.PROMPT_TUNING:
+                self.prompt_embeds = list(self.prompt_embeds)
+                target = [0]
+                if self.prompt_embeds[2] is not None:
+                    target += [2]
+                meta_prompts = []
+                for i in target:
+                    shape = [self.prompt_embeds[i].shape[j] for j in range(len(self.prompt_embeds[i].shape))]
+                    # if len(shape) == 3:
+                    #     shape[1] = 20
+                    meta_prompt = nn.Parameter(
+                        torch.randn(shape, dtype=torch.float32),
+                        requires_grad=True
+                    )
+                    # setattr(self, f"meta_prompt{i}", meta_prompt)
+                    meta_prompts.append(meta_prompt)
+                    self.prompt_embeds[i] = meta_prompt 
+                self.meta_prompts = torch.nn.ParameterList(meta_prompts)        
 
 
         ''' build aggregation network ----------------------------------------------------------------------------- '''
-        self.aggregation_network = AggregationNetwork(
-            projection_dim=cfg.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS,
-            feature_dims=[1280, 1280, 1280, 1280, 1280, 1280, 640, 640, 640, 320, 320, 320],
-            device=cfg.DEVICE,
-        )
+        if self.decouple:
+            self.detection_aggregation_network = AggregationNetwork(
+                projection_dim=cfg.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS,
+                feature_dims=cfg.FEATURE_EXTRACTOR.DETECTION_AGGNET_FEATURE_DIMS,
+                device=cfg.DEVICE,
+            )
+            self.reid_aggregation_network = AggregationNetwork(
+                projection_dim=cfg.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS,
+                feature_dims=cfg.FEATURE_EXTRACTOR.REID_AGGNET_FEATURE_DIMS,
+                device=cfg.DEVICE,
+            )   
+        else:
+            self.shared_aggregation_network = AggregationNetwork(
+                projection_dim=cfg.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS,
+                feature_dims=cfg.FEATURE_EXTRACTOR.SHARED_AGGNET_FEATURE_DIMS,
+                device=cfg.DEVICE,
+            )
         
-       
+        
         ''' build backbone head ------------------------------------------------------------------------------------ '''
         _, backbone_head_type = {
             'ResNet': (ResNetBackbone, ResNetHead),
             'ConvNeXt': (ConvNeXtBackbone, ConvNeXtHead),
             'SOLIDER': (SOLIDERBackbone, SOLIDERHead),
         }[cfg.MODEL.BACKBONE_HEAD]
+
 
         ''' build rpn ---------------------------------------------------------------------------------------------- '''
         anchor_generator = AnchorGenerator(
@@ -167,11 +202,20 @@ class SEAS(Module):
         box_coder = BoxCoder(
             weights=(10.0, 10.0, 5.0, 5.0),
         )
-        box_roi_pool = MultiScaleRoIAlign(
-            featmap_names=['feat_diffusion'],
-            output_size=cfg.MODEL.DETECTION.FEAT_MAP_SIZE,
-            sampling_ratio=2,
-        )
+        
+        if self.decouple:
+            box_roi_pool = MultiScaleRoIAlign(
+                featmap_names=['feat_detection'],
+                output_size=cfg.MODEL.DETECTION.FEAT_MAP_SIZE,
+                sampling_ratio=2,
+            )
+        else:
+            box_roi_pool = MultiScaleRoIAlign(
+                featmap_names=['feat_shared'],
+                output_size=cfg.MODEL.DETECTION.FEAT_MAP_SIZE,
+                sampling_ratio=2,
+            )
+            
         box_head = backbone_head_type(
             down_sampling=True,
         )
@@ -232,17 +276,6 @@ class SEAS(Module):
         else:
             raise ValueError
         initialize(bmn_embedder)
-
-        switch = cfg.MODEL.REID.BNR.MAPPING
-        if switch == 'MBN':
-            mapping = MomentumBatchNorm(1, momentum=cfg.MODEL.REID.BNR.MAPPING_MBN_MOMENTUM)
-        elif switch == 'BN':
-            mapping = BatchNorm1d(1, affine=True, track_running_stats=False)
-        elif switch == 'Identity':
-            mapping = Identity()
-        else:
-            raise ValueError
-        bnr_loss = BackgroundNoiseReductionLoss(mapping=mapping)
         
         ''' build reid roi head ------------------------------------------------------------------------------------ '''
         sampler = Sampler(
@@ -254,26 +287,31 @@ class SEAS(Module):
             bg_label=0,
             append_gt_boxes=True,
         )
-        box_roi_pool = MultiScaleRoIAlign(
-            featmap_names=['feat_diffusion'],
-            output_size=cfg.MODEL.REID.FEAT_MAP_SIZE,
-            sampling_ratio=2,
-        )
-        reid_loss = BidirectionalOnlineInstanceMatchingLoss(
-            dim=cfg.MODEL.REID.DIM_IDENTITY,
-            lut_size=cfg.MODEL.REID.LOSS.LUT_SIZE,
-            cq_size=cfg.MODEL.REID.LOSS.CQ_SIZE,
-            momentum=cfg.MODEL.REID.LOSS.MOMENTUM,
-            scalar=cfg.MODEL.REID.LOSS.SCALAR,
-            margin=cfg.MODEL.REID.LOSS.MARGIN,
-            weight_softmax=cfg.MODEL.REID.LOSS.WEIGHT_SOFTMAX,
-            weight_triplet=cfg.MODEL.REID.LOSS.WEIGHT_TRIPLET,
+        
+        if self.decouple:
+            box_roi_pool = MultiScaleRoIAlign(
+                featmap_names=['feat_reid'],
+                output_size=cfg.MODEL.REID.FEAT_MAP_SIZE,
+                sampling_ratio=2,
+            )   
+        else:
+            box_roi_pool = MultiScaleRoIAlign(
+                featmap_names=['feat_shared'],
+                output_size=cfg.MODEL.REID.FEAT_MAP_SIZE,
+                sampling_ratio=2,
+            )
+
+        reid_loss = OIMLoss(
+            num_features=cfg.MODEL.REID.DIM_IDENTITY,
+            num_pids=cfg.MODEL.REID.LOSS.LUT_SIZE,
+            num_cq_size=cfg.MODEL.REID.LOSS.CQ_SIZE,
+            oim_momentum=cfg.MODEL.REID.LOSS.MOMENTUM,
+            oim_scalar=cfg.MODEL.REID.LOSS.SCALAR,
         )
         self.reid_roi_heads = ReIdRoIHeads(
             box_roi_pool=box_roi_pool,
             enhancer=bmn_enhancer,
             embedder=bmn_embedder,
-            bnr_loss=bnr_loss,
             reid_loss=reid_loss,
             sampler=sampler,
         )
@@ -285,16 +323,14 @@ class SEAS(Module):
             'prop_cls': cfg.MODEL.LOSS_WEIGHT.PROPOSAL_CLS,
             'prop_reg': cfg.MODEL.LOSS_WEIGHT.PROPOSAL_REG,
             'prop_qlt': cfg.MODEL.LOSS_WEIGHT.PROPOSAL_QLT,
-            'box_bnr':  cfg.MODEL.LOSS_WEIGHT.BOX_BNR,
             'box_reid': cfg.MODEL.LOSS_WEIGHT.BOX_REID,
         }
-    
     
     
     '''
     
     preprocess 과정
-    1. SEAS에서 dataloader를 만들 때 이미지를 [0,1]로 정규화함
+    1. dataloader를 만들 때 이미지를 [0,1]로 정규화함
     2. forward() 함수에서 self.transform(GeneralizedRCNNTransform)을 통해 
         이미지를 resize(interpolation)하고, 
         mean과 std에 맞게 정규화하고,
@@ -321,49 +357,111 @@ class SEAS(Module):
         # get original image size for post process, and preprocess
         original_img_sizes = [img.shape[-2:] for img in images] if not self.training else None
         images, targets = self.transform(images, targets)
-
+        
         # extract feature map
-        features = self.feature_extractor.extract(
-            prompts=self.prompt_embeds,
-            batch_size=images.tensors.shape[0],
-            image=images.tensors,
-            image_type='tensors',
-            t=self.t,
-        )
-
-        # 모든 layer의 feature map을 resize하고 concat
-        concat_feats = []
-        for layer_name, tensor in features.items():
-            resized_tensor = torch.nn.functional.interpolate(
-                tensor,
-                size=self.feature_map_size,
-                mode='bilinear',
-                align_corners=False
+        if self.decouple:
+            detection_features = self.decoupled_feature_extractor.extract(
+                prompts=self.prompt_embeds,
+                batch_size=images.tensors.shape[0],
+                image=images.tensors,
+                image_type='tensors',
+                t=self.detection_t,
             )
-            concat_feats.append(resized_tensor)
-        concat_feats = torch.cat(concat_feats, dim=1)
+            reid_features = self.decoupled_feature_extractor.extract(
+                prompts=self.prompt_embeds,
+                batch_size=images.tensors.shape[0],
+                image=images.tensors,
+                image_type='tensors',
+                t=self.reid_t,
+            )
+            detection_features = {
+                k: v for k, v in detection_features.items() if k in self.detection_layer_dict['layer']
+            }
+            reid_features = {
+                k: v for k, v in reid_features.items() if k in self.reid_layer_dict['layer']
+            }
+        else:
+            shared_features = self.shared_feature_extractor.extract(
+                prompts=self.prompt_embeds,
+                batch_size=images.tensors.shape[0],
+                image=images.tensors,
+                image_type='tensors',
+                t=self.t,
+            )
+            
+        # 모든 layer의 feature map을 resize하고 concat
+        if self.decouple:
+            detection_concat_feats = []
+            reid_concat_feats = []
+            for layer_name, tensor in detection_features.items():
+                resized_tensor = torch.nn.functional.interpolate(
+                    tensor,
+                    size=self.feature_map_size,
+                    mode='bilinear',
+                    align_corners=False
+                )
+                detection_concat_feats.append(resized_tensor)
+            for layer_name, tensor in reid_features.items():
+                resized_tensor = torch.nn.functional.interpolate(
+                    tensor,
+                    size=self.feature_map_size,
+                    mode='bilinear',
+                    align_corners=False
+                )
+                reid_concat_feats.append(resized_tensor)
+            detection_concat_feats = torch.cat(detection_concat_feats, dim=1)
+            reid_concat_feats = torch.cat(reid_concat_feats, dim=1)
+        else:
+            shared_concat_feats = []
+            for layer_name, tensor in shared_features.items():
+                resized_tensor = torch.nn.functional.interpolate(
+                    tensor,
+                    size=self.feature_map_size,
+                    mode='bilinear',
+                    align_corners=False
+                )
+                shared_concat_feats.append(resized_tensor)
+            shared_concat_feats = torch.cat(shared_concat_feats, dim=1)
         
         # concat한 feature map을 aggregation network에 넣어 channel 수를 줄임
-        agg_feats = self.aggregation_network(concat_feats.float())
-        feats = {"feat_diffusion": agg_feats} 
+        if self.decouple:
+            agg_detection_feats = self.detection_aggregation_network(detection_concat_feats.float())  
+            agg_reid_feats = self.reid_aggregation_network(reid_concat_feats.float())
+            detection_feats = {"feat_detection": agg_detection_feats}
+            reid_feats = {"feat_reid": agg_reid_feats}
+        else:
+            agg_shared_feats = self.shared_aggregation_network(shared_concat_feats.float())
+            shared_feats = {"feat_shared": agg_shared_feats} 
 
         # detection
         if not use_gt_as_det:
             det_targets = [
                 {'boxes': tgt['boxes'], 'labels': torch.ones_like(tgt['labels'])} for tgt in targets
             ] if targets else None
-            props, rpn_losses = self.rpn(images, feats, det_targets)
-            boxes, scores, _, detector_losses = self.detection_roi_heads(feats, props, images.image_sizes, det_targets)
+            
+            if self.decouple:
+                props, rpn_losses = self.rpn(images, detection_feats, det_targets)
+                boxes, scores, _, detector_losses = self.detection_roi_heads(detection_feats, props, images.image_sizes, det_targets)
+            else:
+                props, rpn_losses = self.rpn(images, shared_feats, det_targets)
+                boxes, scores, _, detector_losses = self.detection_roi_heads(shared_feats, props, images.image_sizes, det_targets)
+            
             if self.training:
                 boxes = [torch.cat([boxes_in_img, props_in_img]) for boxes_in_img, props_in_img in zip(boxes, props)]
+        
         else:  # using ground truth as the detection result
             assert targets is not None
             rpn_losses = {}
             boxes = [target['boxes'] for target in targets]
             scores = [boxes_in_img.new_ones(len(boxes_in_img)) for boxes_in_img in boxes]
             detector_losses = {}
+            
         # re-identity
-        identities, reid_losses = self.reid_roi_heads(feats, boxes, images.image_sizes, targets)
+        if self.decouple:
+            identities, reid_losses = self.reid_roi_heads(reid_feats, boxes, images.image_sizes, targets)
+        else:
+            identities, reid_losses = self.reid_roi_heads(shared_feats, boxes, images.image_sizes, targets)
+            
         # post process
         if self.training:  # wrap losses
             losses = rpn_losses
@@ -524,7 +622,6 @@ class ReIdRoIHeads(Module):
             box_roi_pool: MultiScaleRoIAlign,
             enhancer: Module,
             embedder: Module,
-            bnr_loss: Module,
             reid_loss: Module,
             sampler: Sampler,
     ):
@@ -532,7 +629,6 @@ class ReIdRoIHeads(Module):
         self.box_roi_pool = box_roi_pool
         self.enhancer = enhancer
         self.embedder = embedder
-        self.bnr_loss = bnr_loss
         self.reid_loss = reid_loss
         self.sampler = sampler
 
@@ -543,6 +639,7 @@ class ReIdRoIHeads(Module):
             image_sizes: List[Tuple[int, int]],
             targets: Optional[List[Dict[str, Tensor]]] = None,
     ) -> Tuple[Optional[List[Tensor]], Optional[Dict[str, Tensor]]]:
+
         if self.training:
             boxes, _, labels, _ = self.sampler(boxes, targets)
         else:
@@ -551,18 +648,17 @@ class ReIdRoIHeads(Module):
         num_boxes_per_img = list(map(len, boxes))
         box_feats = self.box_roi_pool(feats, boxes, image_sizes)
         box_feats = self.enhancer(box_feats)
-        box_embeddings = self.embedder(box_feats)
-
+        # box_feats['head_input'].shape --> [bbox 개수, 512, 24, 12]
+        # box_feats['head_output'].shape --> [bbox 개수, 512, 12, 6]
+        box_embeddings = self.embedder(box_feats) # 512 embedding + 512 embedding --> 1024 embedding
+        # box_embeddings.shape --> [bbox 개수, 1024]
         box_identities = box_embeddings
         box_identities = F.normalize(box_identities, dim=-1)
+        # box_identities.shape --> [bbox 개수, 1024]
 
         if self.training:
-            labels = torch.cat(labels)  # Tensor(B * N,)
-
-            loss_box_bnr = self.bnr_loss(box_embeddings, labels)
-            loss_box_reid = self.reid_loss(box_identities, labels, normalized=True)
-
-            losses = {'box_bnr': loss_box_bnr}
+            loss_box_reid = self.reid_loss(box_identities, labels)
+            losses = {}
             if loss_box_reid is not None:
                 losses['box_reid'] = loss_box_reid
             box_identities = None

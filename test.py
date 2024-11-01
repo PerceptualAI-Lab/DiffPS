@@ -7,7 +7,7 @@ import argparse
 from yamlinclude import YamlIncludeConstructor
 
 from defaults import get_default_cfg
-from models.seas import SEAS
+from models.prism import PRISM
 import datasets
 from datasets import LoaderMaker
 from utils.general import set_random_seed
@@ -21,7 +21,7 @@ def main(args):
     cfg.merge_from_file(args.cfg_file)
     cfg.freeze()
     set_random_seed(cfg.SEED)
-    model = SEAS(cfg).to(cfg.DEVICE)
+    model = PRISM(cfg).to(cfg.DEVICE)
     model.load_state_dict(Trainer.get_model_state_dict_from_ckpt(args.ckpt_file))
     evaluator = Evaluator(
         model=model,

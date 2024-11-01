@@ -1,7 +1,7 @@
 DATASET:
   TYPE: PRW
   PATH: !include configs/_path_prw.yaml
-  BATCH_SIZE: 8
+  BATCH_SIZE: 4
 SOLVER:
   MAX_EPOCHS: 30
   OPTIMIZER: 'Adam'

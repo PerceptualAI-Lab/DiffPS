@@ -5,7 +5,7 @@ import yaml
 from yamlinclude import YamlIncludeConstructor
 import os
 from defaults import get_default_cfg
-from models.seas import SEAS
+from models.prism import PRISM
 from utils.general import make_log_dir, set_random_seed
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 ROOT = osp.dirname(__file__)
@@ -28,7 +28,7 @@ def main(args):
 
     
     ''' training related components -------------------------------------------------------------------------------- '''
-    model = SEAS(cfg).to(cfg.DEVICE)
+    model = PRISM(cfg).to(cfg.DEVICE)
     
     # 전체 모델의 파라미터 개수 계산
     total_params = get_parameter_count(model.parameters())

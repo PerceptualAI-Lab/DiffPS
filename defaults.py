@@ -8,37 +8,63 @@ _C = CN()
 # -------------------------------------------------------------------------------------------------------------------- #
 # WandB                                                                                                                #
 # -------------------------------------------------------------------------------------------------------------------- #
-_C.WANDB_RUN = 'diffusionSEAS'
-_C.WANDB_PROJECT = "diffusionPS"
+_C.WANDB_RUN = 'test'
+_C.WANDB_PROJECT = "test"
 _C.WANDB_ENTITY = "rlduf422"
-_C.OUTPUT_DIR = "baseline"
+_C.OUTPUT_DIR = "test"
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # FEATURE EXTRACTOR                                                                                                    #
 # -------------------------------------------------------------------------------------------------------------------- #
 _C.FEATURE_EXTRACTOR = CN()
-_C.FEATURE_EXTRACTOR.IMAGE_SIZE = (1024, 1024)
-_C.FEATURE_EXTRACTOR.FEATURE_MAP_SIZE = (128, 128)
-_C.FEATURE_EXTRACTOR.TIMESTEP = 0
+
+_C.FEATURE_EXTRACTOR.DECOUPLE = True
+_C.FEATURE_EXTRACTOR.IMAGE_SIZE = (1280, 1280)
+_C.FEATURE_EXTRACTOR.FEATURE_MAP_SIZE = (160, 160)
+_C.FEATURE_EXTRACTOR.VERSION = '2-1'
 _C.FEATURE_EXTRACTOR.PROMPT = 'a photo of a person'
 _C.FEATURE_EXTRACTOR.TRAIN_UNET = False
 _C.FEATURE_EXTRACTOR.PROMPT_TUNING = False
-_C.FEATURE_EXTRACTOR.VERSION = '1-5'
 _C.FEATURE_EXTRACTOR.ATTENTION = None
-_C.FEATURE_EXTRACTOR.LAYER = [
-    "up-level0-repeat0-res-out",
-    "up-level0-repeat1-res-out",
-    "up-level0-repeat2-res-out",
-    "up-level1-repeat0-res-out",
-    "up-level1-repeat1-res-out",
-    "up-level1-repeat2-res-out",
-    "up-level2-repeat0-res-out",
-    "up-level2-repeat1-res-out",
-    "up-level2-repeat2-res-out",
-    "up-level3-repeat0-res-out",
-    "up-level3-repeat1-res-out",
-    "up-level3-repeat2-res-out",
+
+# v1-5는 0, v2-1, xl은 1을 줘야됨
+_C.FEATURE_EXTRACTOR.SHARED_TIMESTEP = 50
+_C.FEATURE_EXTRACTOR.DETECTION_TIMESTEP = 20
+_C.FEATURE_EXTRACTOR.REID_TIMESTEP = 1
+
+_C.FEATURE_EXTRACTOR.SHARED_AGGNET_FEATURE_DIMS = [1280, 1280, 1280, 1280, 1280, 1280, 640, 640, 640, 320, 320, 320]
+_C.FEATURE_EXTRACTOR.DETECTION_AGGNET_FEATURE_DIMS = [640, 640, 320, 320]
+_C.FEATURE_EXTRACTOR.REID_AGGNET_FEATURE_DIMS = [640, 640, 320, 320, 320]
+
+_C.FEATURE_EXTRACTOR.SHARED_LAYER = [
+    "up-level0-repeat0-res-out", #1280
+    "up-level0-repeat1-res-out", #1280
+    "up-level0-repeat2-res-out", #1280
+    "up-level1-repeat0-res-out", #1280
+    "up-level1-repeat1-res-out", #1280
+    "up-level1-repeat2-res-out", #1280
+    "up-level2-repeat0-res-out", #640
+    "up-level2-repeat1-res-out", #640
+    "up-level2-repeat2-res-out", #640
+    "up-level3-repeat0-res-out", #320
+    "up-level3-repeat1-res-out", #320
+    "up-level3-repeat2-res-out", #320
 ]
+_C.FEATURE_EXTRACTOR.DETECTION_LAYER = [
+    "up-level2-repeat0-res-out", #640
+    "up-level2-repeat1-res-out", #640
+    "up-level2-repeat2-res-out", #640
+    "up-level3-repeat0-res-out", #320
+]
+_C.FEATURE_EXTRACTOR.REID_LAYER = [
+    "up-level1-repeat2-res-out", #640
+    "up-level2-repeat1-res-out", #640
+    "up-level2-repeat2-res-out", #640
+    "up-level3-repeat0-res-out", #320
+    "up-level3-repeat1-res-out", #320
+    "up-level3-repeat2-res-out", #320
+]
+
 _C.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS = 512
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -158,9 +184,6 @@ _C.MODEL.REID.EMBEDDING = 'MGE'  # {'MGE', 'GFE'} embedding type
 _C.MODEL.REID.EMBEDDING_MGE = CN()
 _C.MODEL.REID.EMBEDDING_MGE.NUM_BRANCHES = 3
 _C.MODEL.REID.EMBEDDING_MGE.DROP_PATH = 0.1
-_C.MODEL.REID.BNR = CN()
-_C.MODEL.REID.BNR.MAPPING = 'MBN'  # {'MBN', 'BN', 'Identity'} the mapping type of BNR loss
-_C.MODEL.REID.BNR.MAPPING_MBN_MOMENTUM = 0.9
 
 _C.MODEL.REID.LOSS = CN()
 _C.MODEL.REID.LOSS.LUT_SIZE = 5532
@@ -168,8 +191,6 @@ _C.MODEL.REID.LOSS.CQ_SIZE = 5000
 _C.MODEL.REID.LOSS.MOMENTUM = 0.5
 _C.MODEL.REID.LOSS.SCALAR = 30.0
 _C.MODEL.REID.LOSS.MARGIN = 0.25
-_C.MODEL.REID.LOSS.WEIGHT_SOFTMAX = 2.0 ###### 원래 1.0
-_C.MODEL.REID.LOSS.WEIGHT_TRIPLET = 2.0 ###### 원래 1.0
 
 _C.MODEL.LOSS_WEIGHT = CN()
 _C.MODEL.LOSS_WEIGHT.RPN_REG = 1.0
@@ -177,7 +198,6 @@ _C.MODEL.LOSS_WEIGHT.RPN_CLS = 1.0
 _C.MODEL.LOSS_WEIGHT.PROPOSAL_REG = 10.0
 _C.MODEL.LOSS_WEIGHT.PROPOSAL_CLS = 1.0
 _C.MODEL.LOSS_WEIGHT.PROPOSAL_QLT = 1.0
-_C.MODEL.LOSS_WEIGHT.BOX_BNR = 1.0
 _C.MODEL.LOSS_WEIGHT.BOX_REID = 2.0 ###### 원래 1.0
 
 # Choose one from {'v1', 'v2'}

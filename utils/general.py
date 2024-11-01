@@ -15,7 +15,7 @@ import functools
 def make_log_dir(root: Path, subfolder_name: str = '', output_dir: str = '') -> Path:
     """ Creating './logs/subfolder_name/runX' in the same directory as this file, and return it. The X is equal to
     maximum+1. """
-    base = root.joinpath(r'logs', subfolder_name)
+    base = root.joinpath(r'checkpoints', subfolder_name)
     maximum = 1
     if base.exists():
         pattern = re.compile(r'^run([1-9]+[0-9]*)$')

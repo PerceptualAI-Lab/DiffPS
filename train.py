@@ -10,7 +10,7 @@ from yamlinclude import YamlIncludeConstructor
 import sys
 import wandb
 from defaults import get_default_cfg
-from models.seas import SEAS
+from models.prism import PRISM
 import datasets
 from datasets import LoaderMaker
 from engines.evaluator import Evaluator
@@ -43,7 +43,7 @@ def main(args):
     training_loader = loader_maker.make_training_loader()
     test_loader, queries_loader, gallery_per_query = loader_maker.make_test_data()
     ''' training related components -------------------------------------------------------------------------------- '''
-    model = SEAS(cfg).to(cfg.DEVICE)
+    model = PRISM(cfg).to(cfg.DEVICE)
     optimizer = make_optimizer(
         named_parameters=model.named_parameters(),
         type_=cfg.SOLVER.OPTIMIZER,
@@ -85,7 +85,7 @@ def main(args):
                 trainer.iteration,
             )
         trainer.save_ckpt(osp.join(save_dir, f'ckpt_epoch-{trainer.epoch}.pth'))
-        if trainer.epoch % cfg.EVAL.START == 10:
+        if trainer.epoch >= cfg.EVAL.START:
             kpi, vis_data = evaluator.evaluate(test_loader, queries_loader, gallery_per_query)
             summary_writer.add_scalars('detection', kpi['detection'], trainer.epoch)
             summary_writer.add_scalars('search', kpi['search'], trainer.epoch)
