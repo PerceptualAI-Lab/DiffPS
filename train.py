@@ -1,6 +1,3 @@
-# -*- coding: UTF-8 -*-
-# @Author: Yimin Jiang
-
 from torch.utils.tensorboard import SummaryWriter
 from os import path as osp
 from pathlib import Path
