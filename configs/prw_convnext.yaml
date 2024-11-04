@@ -1,9 +1,9 @@
 DATASET:
   TYPE: PRW
   PATH: !include configs/_path_prw.yaml
-  BATCH_SIZE: 6
+  BATCH_SIZE: 3
 SOLVER:
-  MAX_EPOCHS: 30
+  MAX_EPOCHS: 10
   OPTIMIZER: 'Adam'
   BASE_LR: 0.0001
   WEIGHT_DECAY: 0.0
@@ -22,9 +22,6 @@ MODEL:
   PARAM_INIT: 'v2'
 
 EVAL:
-  START: 8
-
-WANDB_PROJECT: 'test'
-OUTPUT_DIR: 'decoupled_test'
+  START: 10
 
 

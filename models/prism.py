@@ -110,7 +110,7 @@ class PRISM(Module):
                 dtype='float32' if cfg.FEATURE_EXTRACTOR.TRAIN_UNET else 'float16',
             )
             
-            self.t = cfg.FEATURE_EXTRACTOR.SHARED_TIMESTEP
+            self.shared_t = cfg.FEATURE_EXTRACTOR.SHARED_TIMESTEP
             self.prompt_embeds = self.shared_feature_extractor.encode_prompt(cfg.FEATURE_EXTRACTOR.PROMPT)
             self.shared_feature_extractor.offload_prompt_encoder(persistent=True)  # to save some vram
             
@@ -386,9 +386,9 @@ class PRISM(Module):
                 batch_size=images.tensors.shape[0],
                 image=images.tensors,
                 image_type='tensors',
-                t=self.t,
+                t=self.shared_t,
             )
-            
+
         # 모든 layer의 feature map을 resize하고 concat
         if self.decouple:
             detection_concat_feats = []
@@ -422,7 +422,7 @@ class PRISM(Module):
                 )
                 shared_concat_feats.append(resized_tensor)
             shared_concat_feats = torch.cat(shared_concat_feats, dim=1)
-        
+
         # concat한 feature map을 aggregation network에 넣어 channel 수를 줄임
         if self.decouple:
             agg_detection_feats = self.detection_aggregation_network(detection_concat_feats.float())  

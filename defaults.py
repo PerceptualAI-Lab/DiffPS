@@ -1,5 +1,4 @@
-# -*- coding: UTF-8 -*-
-# @Author: Yimin Jiang
+# CUDA_VISIBLE_DEVICES=0 python train.py --cfg configs/prw_convnext.yaml 
 
 from yacs.config import CfgNode as CN
 
@@ -9,16 +8,16 @@ _C = CN()
 # WandB                                                                                                                #
 # -------------------------------------------------------------------------------------------------------------------- #
 _C.WANDB_RUN = 'PRISM'
-_C.WANDB_PROJECT = "test"
-_C.WANDB_ENTITY = "giyeolkim-chung-ang-university"
-_C.OUTPUT_DIR = "decoupled_test"
+_C.WANDB_PROJECT = "Ablation-Layer"
+_C.WANDB_ENTITY = "PRISM_person_Search"
+_C.OUTPUT_DIR = "up-level3-repeat0-vit-block0-cross-q"
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # FEATURE EXTRACTOR                                                                                                    #
 # -------------------------------------------------------------------------------------------------------------------- #
 _C.FEATURE_EXTRACTOR = CN()
 
-_C.FEATURE_EXTRACTOR.DECOUPLE = True
+_C.FEATURE_EXTRACTOR.DECOUPLE = False
 _C.FEATURE_EXTRACTOR.IMAGE_SIZE = (1280, 1280)
 _C.FEATURE_EXTRACTOR.FEATURE_MAP_SIZE = (160, 160)
 _C.FEATURE_EXTRACTOR.VERSION = '2-1'
@@ -28,41 +27,28 @@ _C.FEATURE_EXTRACTOR.PROMPT_TUNING = False
 _C.FEATURE_EXTRACTOR.ATTENTION = None
 
 # v1-5는 0, v2-1, xl은 1을 줘야됨
-_C.FEATURE_EXTRACTOR.SHARED_TIMESTEP = 50
-_C.FEATURE_EXTRACTOR.DETECTION_TIMESTEP = 20
+_C.FEATURE_EXTRACTOR.SHARED_TIMESTEP = 1
+_C.FEATURE_EXTRACTOR.DETECTION_TIMESTEP = 1
 _C.FEATURE_EXTRACTOR.REID_TIMESTEP = 1
 
-_C.FEATURE_EXTRACTOR.SHARED_AGGNET_FEATURE_DIMS = [1280, 1280, 1280, 1280, 1280, 1280, 640, 640, 640, 320, 320, 320]
-_C.FEATURE_EXTRACTOR.DETECTION_AGGNET_FEATURE_DIMS = [640, 640, 320, 320]
-_C.FEATURE_EXTRACTOR.REID_AGGNET_FEATURE_DIMS = [640, 640, 320, 320, 320]
+_C.FEATURE_EXTRACTOR.SHARED_AGGNET_FEATURE_DIMS = [320]
+_C.FEATURE_EXTRACTOR.DETECTION_AGGNET_FEATURE_DIMS = [640, 640, 640]
+_C.FEATURE_EXTRACTOR.REID_AGGNET_FEATURE_DIMS = [640, 640, 640, 320, 640]
 
 _C.FEATURE_EXTRACTOR.SHARED_LAYER = [
-    "up-level0-repeat0-res-out", #1280
-    "up-level0-repeat1-res-out", #1280
-    "up-level0-repeat2-res-out", #1280
-    "up-level1-repeat0-res-out", #1280
-    "up-level1-repeat1-res-out", #1280
-    "up-level1-repeat2-res-out", #1280
-    "up-level2-repeat0-res-out", #640
-    "up-level2-repeat1-res-out", #640
-    "up-level2-repeat2-res-out", #640
-    "up-level3-repeat0-res-out", #320
-    "up-level3-repeat1-res-out", #320
-    "up-level3-repeat2-res-out", #320
+    "up-level3-repeat0-vit-block0-cross-q" #640
 ]
 _C.FEATURE_EXTRACTOR.DETECTION_LAYER = [
-    "up-level2-repeat0-res-out", #640
-    "up-level2-repeat1-res-out", #640
-    "up-level2-repeat2-res-out", #640
-    "up-level3-repeat0-res-out", #320
+    "up-level2-repeat1-vit-block0-self-v", #640
+    "up-level2-repeat1-vit-block0-self-q", #640
+    "up-level2-upsampler-out" # 640
 ]
 _C.FEATURE_EXTRACTOR.REID_LAYER = [
-    "up-level1-repeat2-res-out", #640
-    "up-level2-repeat1-res-out", #640
+    "up-level2-repeat1-vit-block0-self-v", #640
+    "up-level2-repeat1-vit-block0-self-q", #640
     "up-level2-repeat2-res-out", #640
     "up-level3-repeat0-res-out", #320
-    "up-level3-repeat1-res-out", #320
-    "up-level3-repeat2-res-out", #320
+    "up-level2-repeat1-vit-out", #640
 ]
 
 _C.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS = 512
