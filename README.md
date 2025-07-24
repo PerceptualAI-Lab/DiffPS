@@ -1,5 +1,5 @@
 <div align="center">
-<h2>[ICCV'25 Highlight] <br> DiffPS: Leveraging Prior Knowledge of Diffusion Model for Person Search</h2>
+<h1>[ICCV'25 Highlight]</h1> <br> <h2> DiffPS: Leveraging Prior Knowledge of Diffusion Model for Person Search</h2>
 
 <div>    
     <a href='https://sites.google.com/view/pai-lab/home?authuser=0' target='_blank'>Giyeol Kim</a><sup>1*</sup>&nbsp;
