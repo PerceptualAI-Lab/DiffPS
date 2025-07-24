@@ -9,13 +9,13 @@
     <a href='https://sites.google.com/view/pai-lab/members/faculty?authuser=0' target='_blank'>Chanho Eom</a><sup>† 1</sup>
 </div>
 <div>
-    <sup>*</sup>Co-first authors (equal contribution), <sup>†</sup>Corresponding author
-</div>
-<div>
     <sup>1</sup>GSAIM, Chung-Ang University, <sup>2</sup>IPAI, Seoul National University
 </div>
 <div>
     <sup>3</sup>Department of Mathematical Sciences and RIMS, Seoul National University
+</div>
+<div>
+    <sup>*</sup>Co-first authors (equal contribution), <sup>†</sup>Corresponding author
 </div>
 </div>
 
