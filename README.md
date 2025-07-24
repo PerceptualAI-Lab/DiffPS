@@ -27,3 +27,8 @@
 ### Updates
 - **July 24, 2025**: **DiffPS is selected as a Highlight Paper** at ICCV 2025! 🏆
 - **June 24, 2025**: DiffPS is accepted to ICCV 2025 🎉
+
+## 📢 Note
+We are currently conducting other research projects. The code will be available soon.
+
+
