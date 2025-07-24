@@ -8,3 +8,12 @@
 <sup>3</sup>Department of Mathematical Sciences and RIMS, Seoul National University
 <br><br>
 \*Co-first authors (equal contribution), †Corresponding author
+
+
+
+
+
+## 📣 News
+### Updates
+- **July 24, 2025**: DiffPS selected as Highlight paper 🎉.
+- **June 24, 2025**: DiffPS accepted to ICCV 2025 🎉.
