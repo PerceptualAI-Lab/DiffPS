@@ -1,5 +1,5 @@
 <div align="center">
-<h2>[ICCV'25] DiffPS: Leveraging Prior Knowledge of Diffusion Model for Person Search</h2>
+<h2>[ICCV'25 Highlight] DiffPS: Leveraging Prior Knowledge of Diffusion Model for Person Search</h2>
 
 <div>    
     <a href='https://sites.google.com/view/pai-lab/home?authuser=0' target='_blank'>Giyeol Kim</a><sup>1*</sup>&nbsp;
@@ -12,10 +12,7 @@
     <sup>*</sup>Co-first authors (equal contribution), <sup>†</sup>Corresponding author
 </div>
 <div>
-    <sup>1</sup>GSAIM, Chung-Ang University
-</div>
-<div>
-    <sup>2</sup>IPAI, Seoul National University
+    <sup>1</sup>GSAIM, Chung-Ang University, <sup>2</sup>IPAI, Seoul National University
 </div>
 <div>
     <sup>3</sup>Department of Mathematical Sciences and RIMS, Seoul National University
