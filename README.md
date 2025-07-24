@@ -15,5 +15,5 @@
 
 ## 📣 News
 ### Updates
-- **July 24, 2025**: DiffPS selected as Highlight paper 🎉.
+- **July 24, 2025**: DiffPS selected as Highlight paper ⭐.
 - **June 24, 2025**: DiffPS accepted to ICCV 2025 🎉.
