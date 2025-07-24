@@ -7,4 +7,4 @@
 <br>
 <sup>3</sup>Department of Mathematical Sciences and RIMS, Seoul National University
 <br><br>
-\*Co-first authors (equal contribution), †Co-corresponding authors
+\*Co-first authors (equal contribution), †Corresponding authors
