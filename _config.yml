@@ -1,21 +1,24 @@
 title: "DiffPS: Leveraging Prior Knowledge of Diffusion Model for Person Search"
 description: "ICCV 2025 Highlight Paper - DiffPS"
-theme: minima
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
 
 # GitHub Pages settings
 baseurl: "/DiffPS"
-url: "https://your-username.github.io"
+url: "https://perceptualai-lab.github.io"
 
-# Markdown settings
-markdown: kramdown
-highlighter: rouge
+# Disable Jekyll processing for HTML files
+plugins: []
+
+# Include HTML files
+include:
+  - "*.html"
 
 # Exclude files
 exclude:
   - README.md
   - Gemfile
   - Gemfile.lock
-  - .gitignore 
+  - .gitignore
+
+# Allow HTML processing
+markdown: kramdown
+highlighter: rouge 
