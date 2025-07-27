@@ -80,6 +80,16 @@
     .section p {
       text-align: justify;
     }
+    .motivation-box {
+      background-color: #fff3cd;
+      border-left: 6px solid #ffa502;
+      padding: 1em 1.5em;
+      margin-top: 1em;
+      margin-bottom: 2em;
+      font-size: 1.05em;
+      line-height: 1.7;
+      box-shadow: 0 0 5px rgba(0,0,0,0.05);
+    }
   </style>
 </head>
 <body>
@@ -113,6 +123,21 @@
   <div class="figure">
     <img src="images/teaser_new.png" alt="Teaser Figure">
     <p><em></em></p>
+  </div>
+
+  <div class="section motivation">
+    <h2>Research Motivation</h2>
+    <div class="motivation-box">
+      <p>
+        Most existing person search models rely on <strong>ImageNet pre-trained backbones</strong>. While these backbones provide decent fine-grained features, they often lack the <em>rich visual priors</em> required for person search in diverse and complex scenes.
+      </p>
+      <p>
+        Furthermore, conventional approaches share the same feature space for both <strong>detection</strong> and <strong>re-identification</strong> tasks, leading to <em>conflicting optimization objectives</em> and degraded performance.
+      </p>
+      <p>
+        <strong>Our key motivation</strong> is to address these limitations by leveraging a <strong>pre-trained diffusion model</strong>, which offers richer visual semantics and enables task-specific decoupling to avoid feature interference.
+      </p>
+    </div>
   </div>
 
   <div class="section">
