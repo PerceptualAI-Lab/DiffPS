@@ -154,7 +154,7 @@
     <h3 style="text-align: left; margin-top: 1.2em; margin-bottom: 0.3em; color: #444; border-bottom: 1px solid #ccc; padding-bottom: 0.2em;"><em>Prior Knowledge in Diffusion Model</em></h3>
     <p>
 DiffPS uses a <b>frozen diffusion model backbone</b> to provide rich spatial features, and separates task-specific features for detection and Re-ID to avoid gradient interference. This decoupled design ensures stability and better representation learning.
-<span style="text-decoration: underline;">To fully exploit the capabilities of the pre-trained diffusion model, DiffPS draws upon four core priors:</span>
+To fully exploit the capabilities of the pre-trained diffusion model, DiffPS draws upon four core priors:
 </p>
 <ul style="list-style-type: none; padding-left: 0px;">
   <li>
@@ -162,7 +162,8 @@ DiffPS uses a <b>frozen diffusion model backbone</b> to provide rich spatial fea
       1) Text Conditioning <span>🔽</span>
     </div>
     <div id="text-conditioning" style="display: none; margin-left: 1em; margin-top: 0.5em;">
-      Diffusion models inherently learn to associate text prompts with visual features. We harness this property to encode semantic alignment signals into the image feature space, benefiting identity-aware tasks such as Re-ID. This motivates us to design <b style="color: #d9534f;">DGRPN</b> and <b style="color: #d9534f;">SFAN</b>, which explicitly exploit this alignment for detection and identification tasks, respectively.
+      Diffusion models inherently learn to associate text prompts with visual features. We harness this property to encode semantic alignment signals into the image feature space, benefiting identity-aware tasks such as Re-ID. 
+      <span style="text-decoration: underline;">This motivates us to design <b style="color: #d9534f;">DGRPN</b> and <b style="color: #d9534f;">SFAN</b>,</span> which explicitly exploit this alignment for detection and identification tasks, respectively.
       <img src="images/Text_condition_img.png" alt="Text Conditioning Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
     </div>
   </li>
