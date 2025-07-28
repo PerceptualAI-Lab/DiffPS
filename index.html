@@ -162,7 +162,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
       1) Text Conditioning <span>🔽</span>
     </div>
     <div id="text-conditioning" style="display: none; margin-left: 1em; margin-top: 0.5em;">
-      Diffusion models inherently learn to associate text prompts with visual features. We harness this property to encode semantic alignment signals into the image feature space, benefiting identity-aware tasks such as Re-ID. 
+      Pre-trained diffusion models exhibit strong cross-modal alignment between text and image features, enabling precise localization of person-related regions (e.g., body parts, clothing). This alignment enhances the model’s ability to suppress background clutter and overcome occlusion, providing more robust feature representations for person search.
       <span style="text-decoration: underline;">This motivates us to design <b style="color: #d9534f;">DGRPN</b> and <b style="color: #d9534f;">SFAN</b>,</span> which explicitly exploit this alignment for detection and identification tasks, respectively.
       <img src="images/Text_condition_img.png" alt="Text Conditioning Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
     </div>
@@ -172,7 +172,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
       2) Timestep Semantics <span>🔽</span>
     </div>
     <div id="timestep-semantics" style="display: none; margin-left: 1em; margin-top: 0.5em;">
-      Different timesteps encode features at varying semantic levels. Early steps capture structure and later ones refine texture. We exploit this by selecting intermediate steps rich in person-relevant semantics.
+      The informativeness of diffusion features varies with timestep. For complex scenes like person search, earlier to mid-stage steps (e.g., t=300) offer the best balance between denoising and detail preservation. These steps retain fine-grained features while minimizing the impact of both synthetic and real-world noise, leading to improved person-specific representation.
       <img src="images/Timestep_img.png" alt="Timestep Image Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
     </div>
   </li>
@@ -181,7 +181,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
       3) Hierarchical Structure <span>🔽</span>
     </div>
     <div id="hierarchical-structure" style="display: none; margin-left: 1em; margin-top: 0.5em;">
-      The diffusion backbone naturally captures multi-scale hierarchical features. We decouple these into separate streams for detection and identification, preserving spatial resolution where needed.
+      Diffusion models follow a UNet-based hierarchical structure, where up-stage layers merge global context and local details through skip connections. While up-stage features are generally effective for both detection and re-ID, their usefulness varies across layers. Carefully selecting specific up-stage outputs leads to stronger spatial precision and identity discrimination.
       <img src="images/Hierarchical_img.png" alt="Hierarchical Image Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
     </div>
   </li>
@@ -190,7 +190,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
       4) Shape Bias <span>🔽</span>
     </div>
     <div id="shape-bias" style="display: none; margin-left: 1em; margin-top: 0.5em;">
-      Diffusion models are known to encode strong shape-based priors. This bias aligns well with the structure-centric nature of person localization, helping the detector generalize better.
+      Diffusion models tend to prioritize global shape structures due to their denoising process, introducing a shape bias. While this aids in structural consistency, it can suppress high-frequency details. Augmenting diffusion features with enhanced texture-level cues leads to better discriminative performance in person search.
     </div>
   </li>
 </ul>
@@ -199,7 +199,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
 
   <div class="figure">
     <img src="images/DDPS_arch.png" alt="Architecture Diagram">
-    <p><em>DiffPS Architecture</em></p>
+    <p><em>DiffPS framework</em></p>
   </div>
 
   <div class="figure">
