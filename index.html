@@ -197,10 +197,11 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
   </li>
 </ul>
     <h3 style="text-align: left; margin-top: 1.2em; margin-bottom: 0.3em; color: #444; border-bottom: 1px solid #ccc; padding-bottom: 0.2em;"><em>Framework</em></h3>
+    <p>
+      DiffPS features a frozen diffusion backbone with decoupled detection (<b>DGRPN</b>) and re-ID (<b>MSFRN, SFAN</b>) branches, each tailored to leverage distinct diffusion priors for robust person search.
+    </p>
   </div>
-<p>
-  DiffPS consists of a frozen diffusion backbone with two decoupled branches: DGRPN-based detection and MSFRN+SFAN-based re-ID. Each branch is carefully designed to maximize diffusion priors, enabling efficient person localization and identity-aware representation learning.
-</p>
+
   <div class="figure">
     <img src="images/DDPS_arch.png" alt="Architecture Diagram">
     <p><em>DiffPS framework</em></p>
