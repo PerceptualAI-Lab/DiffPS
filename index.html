@@ -158,7 +158,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
 <ul style="list-style-type: none; padding-left: 0px;">
   <li>
     <div onclick="toggleContent('text-conditioning')" style="cursor: pointer; font-weight: bold; color: #1a73e8; padding: 0.2em 0;">
-      1) Text Conditioning
+      1) Text Conditioning (Click)
     </div>
     <div id="text-conditioning" style="display: none; margin-left: 1em; margin-top: 0.5em;">
       Diffusion models inherently learn to associate text prompts with visual features. We harness this property to encode semantic alignment signals into the image feature space, benefiting identity-aware tasks such as Re-ID.
@@ -167,7 +167,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
   </li>
   <li>
     <div onclick="toggleContent('timestep-semantics')" style="cursor: pointer; font-weight: bold; color: #1a73e8; padding: 0.2em 0;">
-      2) Timestep Semantics
+      2) Timestep Semantics (Click)
     </div>
     <div id="timestep-semantics" style="display: none; margin-left: 1em; margin-top: 0.5em;">
       Different timesteps encode features at varying semantic levels. Early steps capture structure and later ones refine texture. We exploit this by selecting intermediate steps rich in person-relevant semantics.
@@ -176,7 +176,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
   </li>
   <li>
     <div onclick="toggleContent('hierarchical-structure')" style="cursor: pointer; font-weight: bold; color: #1a73e8; padding: 0.2em 0;">
-      3) Hierarchical Structure
+      3) Hierarchical Structure (Click)
     </div>
     <div id="hierarchical-structure" style="display: none; margin-left: 1em; margin-top: 0.5em;">
       The diffusion backbone naturally captures multi-scale hierarchical features. We decouple these into separate streams for detection and identification, preserving spatial resolution where needed.
@@ -185,7 +185,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
   </li>
   <li>
     <div onclick="toggleContent('shape-bias')" style="cursor: pointer; font-weight: bold; color: #1a73e8; padding: 0.2em 0;">
-      4) Shape Bias
+      4) Shape Bias (Click)
     </div>
     <div id="shape-bias" style="display: none; margin-left: 1em; margin-top: 0.5em;">
       Diffusion models are known to encode strong shape-based priors. This bias aligns well with the structure-centric nature of person localization, helping the detector generalize better.
