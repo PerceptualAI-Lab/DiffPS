@@ -162,6 +162,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
     </div>
     <div id="text-conditioning" style="display: none; margin-left: 1em; margin-top: 0.5em;">
       Diffusion models inherently learn to associate text prompts with visual features. We harness this property to encode semantic alignment signals into the image feature space, benefiting identity-aware tasks such as Re-ID.
+      <img src="images/Text_condition_img.png" alt="Text Conditioning Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
     </div>
   </li>
   <li>
@@ -170,6 +171,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
     </div>
     <div id="timestep-semantics" style="display: none; margin-left: 1em; margin-top: 0.5em;">
       Different timesteps encode features at varying semantic levels. Early steps capture structure and later ones refine texture. We exploit this by selecting intermediate steps rich in person-relevant semantics.
+      <img src="images/Timestep_img.png" alt="Timestep Image Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
     </div>
   </li>
   <li>
@@ -178,6 +180,7 @@ To fully exploit the capabilities of the pre-trained diffusion model, DiffPS dra
     </div>
     <div id="hierarchical-structure" style="display: none; margin-left: 1em; margin-top: 0.5em;">
       The diffusion backbone naturally captures multi-scale hierarchical features. We decouple these into separate streams for detection and identification, preserving spatial resolution where needed.
+      <img src="images/Hierarchical_img.png" alt="Hierarchical Image Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
     </div>
   </li>
   <li>
