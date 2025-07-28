@@ -151,8 +151,16 @@
 
   <div class="section">
     <h2>Method</h2>
-    <p>DiffPS uses a frozen diffusion model backbone to provide rich spatial features, and separates task-specific features for detection and Re-ID to avoid gradient interference. This decoupled design ensures stability and better representation learning.
-    DiffPS tries to get the most out of the pretrained diffusion model's inherent knowledge. The main knowledge DiffPS concentrate on are 1) text-image Alignment and 2) Time step feature characteristics. </p>
+    <p>
+DiffPS uses a <b>frozen diffusion model backbone</b> to provide rich spatial features, and separates task-specific features for detection and Re-ID to avoid gradient interference. This decoupled design ensures stability and better representation learning.
+To fully exploit the capabilities of the pre-trained diffusion model, DiffPS draws upon four core priors:
+</p>
+<ul>
+  <li><b>1) Text Conditioning</b></li>
+  <li><b>2) Timestep Semantics</b></li>
+  <li><b>3) Hierarchical Structure</b></li>
+  <li><b>4) Shape Bias</b></li>
+</ul>
   </div>
 
   <div class="figure">
