@@ -204,10 +204,6 @@ To fully exploit the capabilities of the pre-trained diffusion model, <b>DiffPS 
     <p><em>DiffPS framework</em></p>
   </div>
 
-  <div class="figure">
-    <h2>Quantitative Results</h2>
-    <img src="images/SOTA_results.png" alt="SOTA Results">
-  </div>
 
   <div class="section">
   <h2 style="text-align: center; margin-bottom: 1em;">🔍 Branch-wise Module Design</h2>
@@ -216,11 +212,11 @@ To fully exploit the capabilities of the pre-trained diffusion model, <b>DiffPS 
   </p>
 
   <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px;">
-    <!-- DGRPN -->
-    <div style="flex: 1; min-width: 280px; background: #f0f8ff; padding: 20px; border-left: 6px solid #007acc; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-      <h3 style="color: #007acc;">📍 DGRPN (Detection)</h3>
+    <!-- MSFRN -->
+    <div style="flex: 1; min-width: 280px; background: #f5fff0; padding: 20px; border-left: 6px solid #28a745; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+      <h3 style="color: #28a745;">🔍 MSFRN (Re-ID)</h3>
       <p>
-        A novel region proposal network tailored to diffusion features, DGRPN harnesses <em>text-conditioned priors</em> to enhance localization accuracy and suppress background clutter in detection.
+        Addressing the <em>shape bias</em> of generative backbones, MSFRN strengthens fine-grained details and high-frequency cues essential for robust person re-identification.
       </p>
     </div>
 
@@ -232,15 +228,21 @@ To fully exploit the capabilities of the pre-trained diffusion model, <b>DiffPS 
       </p>
     </div>
 
-    <!-- MSFRN -->
-    <div style="flex: 1; min-width: 280px; background: #f5fff0; padding: 20px; border-left: 6px solid #28a745; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-      <h3 style="color: #28a745;">🔍 MSFRN (Re-ID)</h3>
+    <!-- DGRPN -->
+    <div style="flex: 1; min-width: 280px; background: #f0f8ff; padding: 20px; border-left: 6px solid #007acc; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+      <h3 style="color: #007acc;">📍 DGRPN (Detection)</h3>
       <p>
-        Addressing the <em>shape bias</em> of generative backbones, MSFRN strengthens fine-grained details and high-frequency cues essential for robust person re-identification.
+        A novel region proposal network tailored to diffusion features, DGRPN harnesses <em>text-conditioned priors</em> to enhance localization accuracy and suppress background clutter in detection.
       </p>
     </div>
   </div>
 </div>
+
+  <div class="figure">
+    <h2>Quantitative Results</h2>
+    <img src="images/SOTA_results.png" alt="SOTA Results">
+  </div>
+
 
   <div class="section">
     <p style="text-align: center; font-size: 1.2em; margin-bottom: 1em;">
