@@ -128,7 +128,7 @@
   <div class="section motivation">
     <div class="motivation-box">
       <h2 <em>🚀 Research Motivation</em></h2>
-      <p>
+      <!-- <p>
         <strong>Most existing person search models rely on ImageNet pre-trained backbones</strong>. While these backbones provide decent fine-grained features, they often lack the <em>rich visual priors</em> required for person search in diverse and complex scenes.
       </p>
       <p>
@@ -136,7 +136,12 @@
       </p>
       <p>
         <strong>Our key motivation is to address these limitations by leveraging a pre-trained diffusion model</strong>, which offers richer visual semantics and enables task-specific decoupling to avoid feature interference.
-      </p>
+      </p> -->
+      <ul>
+        <li><strong>❌ Limitation:</strong> ImageNet backbones lack rich visual priors</li>
+        <li><strong>⚠️ Conflict:</strong> Shared backbone causes detection vs re-ID interference</li>
+        <li><strong>✅ Our Solution:</strong> Pre-trained <em>diffusion model</em> with task-specific decoupling</li>
+      </ul>
     </div>
   </div>
 
