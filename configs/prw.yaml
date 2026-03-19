@@ -1,9 +1,9 @@
 DATASET:
-  TYPE: CUHK_SYSU
-  PATH: !include configs/_path_cuhk_sysu.yaml
+  TYPE: PRW
+  PATH: ../dataset/PRW
   BATCH_SIZE: 5
 SOLVER:
-  MAX_EPOCHS: 20
+  MAX_EPOCHS: 30
   OPTIMIZER: 'Adam'
   BASE_LR: 0.0001
   WEIGHT_DECAY: 0.0
@@ -13,10 +13,14 @@ SOLVER:
   LR_DECAY_MILESTONES: [8, 14]
   LR_DECAY_GAMMA: 0.1
 MODEL:
-  BACKBONE: 'ConvNeXt'
+  BACKBONE_HEAD: 'ResNet'
   REID:
     LOSS:
-      LUT_SIZE: 5532
-      CQ_SIZE: 5000
-      MARGIN: 0.25
-  PARAM_INIT: 'v1'
+      LUT_SIZE: 483
+      CQ_SIZE: 500
+      MARGIN: 0.35
+  PARAM_INIT: 'v2'
+FEATURE_EXTRACTOR:
+  AGGNET_OUTPUT_CHANNELS: 1024
+
+

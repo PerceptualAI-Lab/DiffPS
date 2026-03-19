@@ -24,6 +24,7 @@ class Trainer:
             scheduler: Optional[LRScheduler] = None,
             clip_grad: float = -1.,
             amp: bool = False,
+            use_image_encoder = False
     ):
         self.epoch = 0
         self.iteration = 0
@@ -33,19 +34,26 @@ class Trainer:
         self.clip_grad = clip_grad
         self.scaler = GradScaler(init_scale=2. ** 13, enabled=amp)
         self.device = next(model.parameters()).device
-
+        self.use_image_encoder = use_image_encoder
+        
     def train(self, dataloader: DataLoader) -> Iterable[Dict[str, Tensor]]:
         self.epoch += 1
         self.model.train()
         self.optimizer.zero_grad()
         for images, targets, _ in tqdm(dataloader, desc=f'Epoch-{self.epoch}', unit='batches'):
             self.iteration += 1
+           
             images = ndarray_to_tensor(images, self.device)
             targets = ndarray_to_tensor(targets, self.device)
 
             # Forward
             with autocast(enabled=self.scaler.is_enabled()):
-                losses = self.model(images, targets)
+                if self.use_image_encoder:
+                    losses = self.model(images=images, targets=targets,
+                                        use_gt_as_det=False, pil_images=pil_images)
+                else:
+                    losses = self.model(images=images, targets=targets,
+                                        use_gt_as_det=False)
                 loss = sum(losses.values())
 
             # Backward

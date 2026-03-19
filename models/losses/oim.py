@@ -47,7 +47,7 @@ class OIMLoss(nn.Module):
         self.oim_scalar = oim_scalar
 
         self.register_buffer("lut", torch.zeros(self.num_pids, self.num_features))
-        self.register_buffer("cq", torch.zeros(self.num_unlabeled, self.num_features))
+        self.register_buffer("cq",  torch.zeros(self.num_unlabeled, self.num_features))
 
         self.header_cq = 0
 
@@ -68,3 +68,5 @@ class OIMLoss(nn.Module):
         ) % self.num_unlabeled
         loss_oim = F.cross_entropy(projected, label, ignore_index=5554)
         return loss_oim
+    
+    

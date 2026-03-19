@@ -7,7 +7,7 @@ from yamlinclude import YamlIncludeConstructor
 import sys
 import wandb
 from defaults import get_default_cfg
-from models.prism import PRISM
+from models.diffps import DiffPS
 import datasets
 from datasets import LoaderMaker
 from engines.evaluator import Evaluator
@@ -22,14 +22,19 @@ def main(args):
     cfg = get_default_cfg()
     for file in args.cfg_files:
         cfg.merge_from_file(file)
+        
+    if args.opts:
+        cfg.merge_from_list(args.opts)    
+    
     cfg.freeze()
     save_dir = str(make_log_dir(Path(ROOT), cfg.OUTPUT_DIR))
     with open(osp.join(save_dir, 'config.yaml'), 'w', encoding='UTF-8') as file:
         file.write(cfg.dump())
     set_random_seed(cfg.SEED)
     
-    wandb.init(project=cfg.WANDB_PROJECT, name=cfg.WANDB_RUN, entity=cfg.WANDB_ENTITY)
-    wandb.run.name = cfg.OUTPUT_DIR
+    print(f'output dir & wandb name : {cfg.OUTPUT_DIR}')
+    
+    wandb.init(project=cfg.WANDB_PROJECT, name=cfg.OUTPUT_DIR, entity=cfg.WANDB_ENTITY)
     
     ''' dataset related components --------------------------------------------------------------------------------- '''
     dataset_reader = getattr(datasets, cfg.DATASET.TYPE)(cfg.DATASET.PATH)
@@ -40,7 +45,7 @@ def main(args):
     training_loader = loader_maker.make_training_loader()
     test_loader, queries_loader, gallery_per_query = loader_maker.make_test_data()
     ''' training related components -------------------------------------------------------------------------------- '''
-    model = PRISM(cfg).to(cfg.DEVICE)
+    model = DiffPS(cfg).to(cfg.DEVICE)
     optimizer = make_optimizer(
         named_parameters=model.named_parameters(),
         type_=cfg.SOLVER.OPTIMIZER,
@@ -64,6 +69,7 @@ def main(args):
         detection_iou_threshold=cfg.EVAL.DETECTION_IOU_THRESHOLD,
         search_iou_threshold=cfg.EVAL.SEARCH_IOU_THRESHOLD,
         top_k=cfg.EVAL.TOP_K,
+        use_image_encoder=cfg.FEATURE_EXTRACTOR.USE_IMAGE_ENCODER
     )
     trainer = Trainer(
         model=model,
@@ -71,6 +77,7 @@ def main(args):
         scheduler=scheduler,
         clip_grad=cfg.SOLVER.CLIP_GRADIENTS,
         amp=cfg.SOLVER.AMP,
+        use_image_encoder=cfg.FEATURE_EXTRACTOR.USE_IMAGE_ENCODER
     )
     ''' training --------------------------------------------------------------------------------------------------- '''
     summary_writer = SummaryWriter(save_dir)
@@ -81,7 +88,7 @@ def main(args):
                 'lr', {f'group{index}': group['lr'] for index, group in enumerate(optimizer.param_groups)},
                 trainer.iteration,
             )
-        trainer.save_ckpt(osp.join(save_dir, f'ckpt_epoch-{trainer.epoch}.pth'))
+        #trainer.save_ckpt(osp.join(save_dir, f'ckpt_epoch-{trainer.epoch}.pth'))
         if trainer.epoch >= cfg.EVAL.START:
             kpi, vis_data = evaluator.evaluate(test_loader, queries_loader, gallery_per_query)
             summary_writer.add_scalars('detection', kpi['detection'], trainer.epoch)
@@ -100,4 +107,12 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Train a person search network.")
     parser.add_argument("--cfg", nargs='+', dest="cfg_files", help="Path to configuration file.")
+    
+    parser.add_argument(
+        "--opts",
+        help="Modify config options using the command-line",
+        default=None,
+        nargs=argparse.REMAINDER,
+    )
+    
     main(parser.parse_args())

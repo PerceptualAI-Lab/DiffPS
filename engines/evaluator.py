@@ -53,6 +53,7 @@ class Evaluator:
             top_k: Optional[List[int]] = None,
             generate_detection_visualize_data: bool = True,
             generate_search_visualize_date: bool = True,
+            use_image_encoder = False
     ):
         self.model = model
         self.det_iou_thresh = detection_iou_threshold
@@ -60,7 +61,8 @@ class Evaluator:
         self.top_k = top_k or [1, 5, 10]
         self.det_vis, self.srh_vis = generate_detection_visualize_data, generate_search_visualize_date
         self.device = next(model.parameters()).device
-
+        self.use_image_encoder = use_image_encoder
+        
     def match_boxes(self, truths: ndarray, boxes: ndarray) -> ndarray[np.bool_]:
         """
         Returns:
@@ -179,16 +181,17 @@ class Evaluator:
         self.model.eval()
         images_info: Evaluator.ImagesInformation = {}
         for images, targets, notes in tqdm(test_loader, desc=f"{'Inferring images of test set': <31}", unit='batches'):
-            results = tensor_to_ndarray(self.model(ndarray_to_tensor(images, self.device)))
-            for result_in_img, target_in_img, note_in_img in zip(results, targets, notes):
-                images_info[note_in_img['name']] = Evaluator.ImageInformation(
-                    name=note_in_img['name'],
-                    truths=target_in_img['boxes'],
-                    labels=target_in_img['labels'],
-                    boxes=result_in_img['boxes'],
-                    scores=result_in_img['scores'],
-                    identities=result_in_img['identities'],
-                )
+            with torch.cuda.amp.autocast():
+                results = tensor_to_ndarray(self.model(ndarray_to_tensor(images, self.device)))
+                for result_in_img, target_in_img, note_in_img in zip(results, targets, notes):
+                    images_info[note_in_img['name']] = Evaluator.ImageInformation(
+                        name=note_in_img['name'],
+                        truths=target_in_img['boxes'],
+                        labels=target_in_img['labels'],
+                        boxes=result_in_img['boxes'],
+                        scores=result_in_img['scores'],
+                        identities=result_in_img['identities'],
+                    )
         return images_info
 
     @torch.no_grad()
@@ -196,11 +199,12 @@ class Evaluator:
         self.model.eval()
         queries_info: List[Evaluator.QueryInformation] = []
         for images, targets, notes in tqdm(queries_loader, desc=f"{'Inferring images of queries': <31}", unit='batches'):
-            results = tensor_to_ndarray(self.model(
-                images=ndarray_to_tensor(images, self.device),
-                targets=ndarray_to_tensor(targets, self.device),
-                use_gt_as_det=True,
-            ))
+            with torch.cuda.amp.autocast():
+                results = tensor_to_ndarray(self.model(
+                    images=ndarray_to_tensor(images, self.device),
+                    targets=ndarray_to_tensor(targets, self.device),
+                    use_gt_as_det=True,
+                ))
             for result_in_img, target_in_img, note_in_img in zip(results, targets, notes):
                 queries_info.append(Evaluator.QueryInformation(
                     name=note_in_img['name'],
