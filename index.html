@@ -1,277 +1,546 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DiffPS: Diffusion for Person Search</title>
+  <title>DiffPS: Diffusion for Person Search | ICCV 2025 Highlight</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-elevated: #1a1a24;
+      --text: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --accent: #a78bfa;
+      --accent-bright: #c4b5fd;
+      --accent-dim: #7c3aed;
+      --border: rgba(255,255,255,0.06);
+      --success: #34d399;
+      --info: #38bdf8;
+      --warning: #fbbf24;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+      --transition: 0.2s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      max-width: 1200px;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      margin: 0;
+      padding: 0;
+      font-size: 1.05rem;
+    }
+
+    .wrapper {
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 20px;
-      line-height: 1.6;
-      background-color: #f5f5f5;
-      color: #333;
+      padding: 0 24px 80px;
     }
-    h1, h2, h3 {
-      color: #222;
+
+    /* Hero */
+    .hero {
       text-align: center;
+      padding: 64px 24px 56px;
+      background: linear-gradient(180deg, #15152a 0%, var(--bg) 100%);
+      position: relative;
+      overflow: hidden;
     }
-    a {
-      color: #1a73e8;
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.15), transparent);
+      pointer-events: none;
+    }
+    .hero h1 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      letter-spacing: -0.02em;
+      margin: 0 0 8px;
+      position: relative;
+    }
+    .hero h1 .brand {
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--text-muted);
+      margin: 0 0 28px;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--accent-dim), #5b21b6);
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 8px 18px;
+      border-radius: 999px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+    }
+    .authors {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+    .authors a {
+      color: var(--accent-bright);
       text-decoration: none;
+      font-weight: 500;
     }
-    a:hover {
+    .authors a:hover {
+      color: white;
       text-decoration: underline;
     }
-    .author-block {
-      text-align: center;
-      margin-bottom: 1em;
+    .affil {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      opacity: 0.9;
+      margin-bottom: 24px;
     }
-    .code-links {
-      text-align: center;
-      margin: 1.5em 0;
+
+    /* Buttons */
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 24px;
     }
-    .code-links a {
-      display: inline-block;
-      padding: 10px 20px;
-      margin: 0 10px;
-      background-color: #333;
-      color: white;
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 12px 24px;
+      border-radius: 10px;
       text-decoration: none;
-      border-radius: 5px;
+      transition: transform var(--transition), box-shadow var(--transition);
     }
-    .figure {
-      text-align: center;
-      margin: 2em 0;
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      color: white;
+      border: none;
+      box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
     }
-    .figure img {
-      max-width: 1000px;
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(124, 58, 237, 0.45);
+    }
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-2px);
+    }
+
+    /* Teaser */
+    .teaser {
+      margin: 48px 0 64px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .teaser img {
       width: 100%;
       display: block;
-      margin: 0 auto;
+      vertical-align: middle;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 64px;
+    }
+    section h2 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      letter-spacing: -0.02em;
+      margin: 0 0 20px;
+      color: white;
+    }
+    section h3 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin: 28px 0 12px;
+      color: var(--text);
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .card:hover {
+      border-color: rgba(167, 139, 250, 0.2);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .card.motivation {
+      border-left: 4px solid var(--accent);
+      background: linear-gradient(90deg, rgba(124, 58, 237, 0.08) 0%, var(--bg-card) 20%);
+    }
+    .card p {
+      margin: 0 0 12px;
+      color: var(--text-muted);
+    }
+    .card p:last-child {
+      margin-bottom: 0;
+    }
+    .card strong {
+      color: var(--text);
+    }
+
+    /* Accordion */
+    .accordion {
+      margin-top: 16px;
+    }
+    .accordion-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+    .accordion-item:hover {
+      border-color: rgba(167, 139, 250, 0.25);
+    }
+    .accordion-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      background: transparent;
+      border: none;
+      color: var(--accent-bright);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .accordion-trigger:hover {
+      background: rgba(255,255,255,0.03);
+    }
+    .accordion-trigger .arrow {
+      font-size: 0.8rem;
+      transition: transform 0.25s ease;
+    }
+    .accordion-item.open .accordion-trigger .arrow {
+      transform: rotate(180deg);
+    }
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+    .accordion-item.open .accordion-body {
+      max-height: 1200px;
+    }
+    .accordion-inner {
+      padding: 0 22px 20px;
+      color: var(--text-muted);
+      font-size: 0.98rem;
+    }
+    .accordion-inner p {
+      margin: 0 0 12px;
+    }
+    .accordion-inner img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 16px;
+      border: 1px solid var(--border);
+    }
+
+    /* Module cards */
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+    .module-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(167, 139, 250, 0.25);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+    .module-card.detection {
+      border-top: 3px solid var(--info);
+    }
+    .module-card.reid-1 {
+      border-top: 3px solid var(--success);
+    }
+    .module-card.reid-2 {
+      border-top: 3px solid #f472b6;
+    }
+    .module-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .module-card p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* Figure */
+    .figure {
+      margin: 40px 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .figure img {
+      width: 100%;
+      display: block;
+    }
+    .figure-caption {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+      padding: 0 16px;
+    }
+
+    /* BibTeX */
+    .bibtex-wrap {
+      margin-top: 24px;
     }
     .bibtex {
-      background: #eee;
-      padding: 1em;
-      font-family: monospace;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      overflow-x: auto;
       white-space: pre-wrap;
-      max-width: 1000px;
-      margin: 0 auto;
+      word-break: break-word;
     }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
+
+    /* CTA */
+    .cta {
       text-align: center;
+      padding: 32px 24px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(56, 189, 248, 0.06));
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+      margin: 48px 0 56px;
     }
-    .section {
-      margin: 60px auto;
-      max-width: 1000px;
-      padding: 0 20px;
-    }
-    .section p {
-      text-align: justify;
-    }
-    .motivation-box {
-      background-color: #fff3cd;
-      border-left: 6px solid #ffa502;
-      padding: 1em 1.5em;
-      margin-top: 1em;
-      margin-bottom: 2em;
-      font-size: 1.05em;
-      line-height: 1.7;
-      box-shadow: 0 0 5px rgba(0,0,0,0.05);
+    .cta p {
+      margin: 0 0 16px;
+      font-size: 1.1rem;
+      color: var(--text);
     }
   </style>
 </head>
 <body>
-  <h1 style="font-size: 2.8em; font-weight: 700;">
-    <span style="color: #9932cc;">DiffPS</span><span style="color: #222;"></span>:
-    <span style="color: #222;">Leveraging Prior Knowledge of Diffusion Model for Person Search</span>
-  </h1>
+  <header class="hero">
+    <div class="wrapper">
+      <div class="badge">🏆 ICCV 2025 Highlight</div>
+      <h1><span class="brand">DiffPS</span>: Leveraging Prior Knowledge of Diffusion Model for Person Search</h1>
+      <p class="subtitle">Frozen diffusion backbone with decoupled detection and re-ID — state-of-the-art on CUHK-SYSU and PRW.</p>
+      <div class="authors">
+        <a href="https://sites.google.com/view/pai-lab/home?authuser=0" target="_blank" rel="noopener">Giyeol Kim</a><sup>1*</sup>,
+        <a href="https://ncia.snu.ac.kr/" target="_blank" rel="noopener">Sooyoung Yang</a><sup>2*</sup>,
+        <a href="https://cmlab.cau.ac.kr/our-team/professor" target="_blank" rel="noopener">Jihyong Oh</a><sup>1</sup>,
+        <a href="https://ncia.snu.ac.kr/general-5-1" target="_blank" rel="noopener">Myungjoo Kang</a><sup>2,3</sup>,
+        <a href="https://sites.google.com/view/pai-lab/members/faculty?authuser=0" target="_blank" rel="noopener">Chanho Eom</a><sup>1†</sup>
+      </div>
+      <div class="affil">
+        <sup>1</sup>GSAIM, Chung-Ang University &nbsp;|&nbsp; <sup>2</sup>IPAI, Seoul National University &nbsp;|&nbsp; <sup>3</sup>Dept. of Mathematical Sciences and RIMS, SNU<br>
+        *Equal contribution &nbsp;·&nbsp; †Corresponding author
+      </div>
+      <div class="links">
+        <a href="https://github.com/PerceptualAI-Lab/DiffPS" class="btn btn-primary" target="_blank" rel="noopener">Code</a>
+        <a href="https://arxiv.org/abs/2510.01841" class="btn btn-secondary" target="_blank" rel="noopener">arXiv</a>
+        <a href="https://openaccess.thecvf.com/content/ICCV2025/papers/Kim_Leveraging_Prior_Knowledge_of_Diffusion_Model_for_Person_Search_ICCV_2025_paper.pdf" class="btn btn-secondary" target="_blank" rel="noopener">Paper (PDF)</a>
+      </div>
+    </div>
+  </header>
 
-  <div class="author-block">
-    <p>
-      <strong>Giyeol Kim<sup>1*</sup></strong>,
-      <strong>Sooyoung Yang<sup>2*</sup></strong>,
-      <strong>Jihyong Oh<sup>1</sup></strong>,
-      <strong>Myungjoo Kang<sup>2,3</sup></strong>,
-      <strong>Chanho Eom<sup>1†</sup></strong>
-      <br>
-      <sup>1</sup>GSAIM, Chung-Ang University,
-      <sup>2</sup>IPAI, Seoul National University,
-      <br>
-      <sup>3</sup>Department of Mathematical Sciences and RIMS, Seoul National University
-      <br><br>
-      *Equal contribution
-    </p>
-    <p style="text-align: center; font-size: 1.5em; font-weight: bold; color: #d2691e;">🏆 ICCV 2025 Highlight Paper 🎉</p>
-  </div>
-  <div class="code-links">
-    <a href="https://github.com/PerceptualAI-Lab/DiffPS">💻 Code</a>
-    <a href="https://arxiv.org/abs/2510.01841">📄 Paper</a>
-  </div>
+  <main class="wrapper">
+    <div class="teaser">
+      <img src="images/teaser_new.png" alt="DiffPS Teaser: diffusion features vs ImageNet backbones">
+    </div>
 
-  <div class="figure">
-    <img src="images/teaser_new.png" alt="Teaser Figure">
-    <p><em></em></p>
-  </div>
+    <section>
+      <h2>Research Motivation</h2>
+      <div class="card motivation">
+        <p><strong>Most existing person search models rely on ImageNet pre-trained backbones.</strong> While these backbones provide decent fine-grained features, they often lack the rich visual priors required for person search in diverse and complex scenes.</p>
+        <p><strong>Conventional approaches also rely on a shared backbone for both person detection and re-identification</strong>, leading to conflicting optimization objectives and degraded performance.</p>
+        <p><strong>We address these limitations by leveraging a pre-trained diffusion model</strong>, which offers richer visual semantics and enables task-specific decoupling to avoid feature interference.</p>
+      </div>
+    </section>
 
-  <div class="section motivation">
-    <div class="motivation-box">
-      <h2 <em>🚀 Research Motivation</em></h2>
-      <p>
-        <strong>Most existing person search models rely on ImageNet pre-trained backbones</strong>. While these backbones provide decent fine-grained features, they often lack the rich visual priors required for person search in diverse and complex scenes.
+    <section>
+      <h2>Method</h2>
+      <h3>Prior Knowledge in Diffusion Model</h3>
+      <p style="color: var(--text-muted); margin-bottom: 8px;">
+        DiffPS uses a <strong style="color: var(--text);">frozen diffusion backbone (Stable Diffusion)</strong> and separates task-specific features for detection and Re-ID to avoid gradient interference. We leverage <strong style="color: var(--text);">four inherent priors</strong>:
       </p>
-      <p>
-        <strong>Furthermore, conventional approaches rely on a shared backbone feature for both person detection and person re-identification</strong> tasks, leading to conflicting optimization objectives and degraded performance.
+      <div class="accordion">
+        <div class="accordion-item">
+          <button type="button" class="accordion-trigger" aria-expanded="false">
+            1) Text conditioning <span class="arrow">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-inner">
+              <p>Pre-trained diffusion models exhibit strong text–image alignment, enabling precise localization of person-related regions (e.g., body parts, clothing). This motivates <strong style="color: #f472b6;">DGRPN</strong> and <strong style="color: #f472b6;">SFAN</strong>.</p>
+              <img src="images/Text_condition_img.png" alt="Text conditioning illustration">
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button type="button" class="accordion-trigger" aria-expanded="false">
+            2) Timestep semantics <span class="arrow">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-inner">
+              <p>The informativeness of diffusion features varies with timestep. For person search, earlier steps retain fine-grained features while minimizing noise impact.</p>
+              <img src="images/Timestep_img.png" alt="Timestep semantics">
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button type="button" class="accordion-trigger" aria-expanded="false">
+            3) Hierarchical structure <span class="arrow">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-inner">
+              <p>Up-stage layers in the UNet merge global context and local details. Carefully selecting specific up-stage outputs improves spatial precision and identity discrimination.</p>
+              <img src="images/Hierarchical_img.png" alt="Hierarchical structure">
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button type="button" class="accordion-trigger" aria-expanded="false">
+            4) Shape bias <span class="arrow">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-inner">
+              <p>Generative models often exhibit shape bias. We design <strong style="color: var(--success);">MSFRN</strong> to reinforce high-frequency, fine-grained representations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>DiffPS Framework</h3>
+      <p style="color: var(--text-muted);">
+        DiffPS features a frozen diffusion backbone with decoupled detection (<strong style="color: var(--text);">DGRPN</strong>) and re-ID (<strong style="color: var(--text);">MSFRN</strong>, <strong style="color: var(--text);">SFAN</strong>) branches, each tailored to distinct diffusion priors.
       </p>
-      <p>
-        <strong>Our key motivation is to address these limitations by leveraging a pre-trained diffusion model</strong>, which offers richer visual semantics and enables task-specific decoupling to avoid feature interference.
-      </p>
-      <!-- <ul>
-        <li><strong>❌ Limitation:</strong> ImageNet backbones lack rich visual priors</li>
-        <li><strong>⚠️ Conflict:</strong> Shared backbone causes detection vs re-ID interference</li>
-        <li><strong>✅ Our Solution:</strong> Pre-trained <em>diffusion model</em> with task-specific decoupling</li>
-      </ul> -->
-    </div>
-  </div>
+    </section>
 
-
-  <div class="section">
-    <h2>Method</h2>
-    <h3 style="text-align: left; margin-top: 1.2em; margin-bottom: 0.3em; color: #444; border-bottom: 1px solid #ccc; padding-bottom: 0.2em;"><em>Prior Knowledge in Diffusion Model</em></h3>
-    <p>
-<b>DiffPS uses a frozen diffusion model backbone (Stable Diffusion)</b> to provide rich spatial features, and separates task-specific features for detection and Re-ID to avoid gradient interference. This decoupled design ensures stability and better representation learning.
-To fully exploit the capabilities of the pre-trained diffusion model, <b>DiffPS leverages four inherent priors embedded in the model architecture</b>:
-</p>
-<ul style="list-style-type: none; padding-left: 0px;">
-  <li>
-    <div onclick="toggleContent('text-conditioning')" style="cursor: pointer; font-weight: bold; color: #1a73e8; padding: 0.2em 0;">
-      1) Text Conditioning <span>🔽</span>
-    </div>
-    <div id="text-conditioning" style="display: none; margin-left: 1em; margin-top: 0.5em;">
-      Pre-trained diffusion models exhibit strong text-image alignment between text and image features, enabling precise localization of person-related regions (e.g., body parts, clothing). This alignment enhances the model’s ability to suppress background clutter and overcome occlusion, providing more robust feature representations for person search.
-      <span style="text-decoration: underline;">This motivates us to design <b style="color: #d9534f;">DGRPN</b> and <b style="color: #d9534f;">SFAN</b>,</span> which explicitly exploit this alignment for detection and identification tasks, respectively.
-      <img src="images/Text_condition_img.png" alt="Text Conditioning Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
-    </div>
-  </li>
-  <li>
-    <div onclick="toggleContent('timestep-semantics')" style="cursor: pointer; font-weight: bold; color: #1a73e8; padding: 0.2em 0;">
-      2) Timestep Semantics <span>🔽</span>
-    </div>
-    <div id="timestep-semantics" style="display: none; margin-left: 1em; margin-top: 0.5em;">
-      The informativeness of diffusion features varies with timestep. For complex scenes like person search, earlier to mid-stage steps (e.g., t=300) offer the best balance between denoising and detail preservation. These steps retain fine-grained features while minimizing the impact of both synthetic and real-world noise, leading to improved person-specific representation.
-      <img src="images/Timestep_img.png" alt="Timestep Image Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
-    </div>
-  </li>
-  <li>
-    <div onclick="toggleContent('hierarchical-structure')" style="cursor: pointer; font-weight: bold; color: #1a73e8; padding: 0.2em 0;">
-      3) Hierarchical Structure <span>🔽</span>
-    </div>
-    <div id="hierarchical-structure" style="display: none; margin-left: 1em; margin-top: 0.5em;">
-      Diffusion models follow a UNet-based hierarchical structure, where up-stage layers merge global context and local details through skip connections. While up-stage features are generally effective for both detection and re-ID, their usefulness varies across layers. Carefully selecting specific up-stage outputs leads to stronger spatial precision and identity discrimination.
-      <img src="images/Hierarchical_img.png" alt="Hierarchical Image Illustration" style="max-width: 800px; width: 100%; margin-top: 1em;">
-    </div>
-  </li>
-  <li>
-    <div onclick="toggleContent('shape-bias')" style="cursor: pointer; font-weight: bold; color: #1a73e8; padding: 0.2em 0;">
-      4) Shape Bias <span>🔽</span>
-    </div>
-    <div id="shape-bias" style="display: none; margin-left: 1em; margin-top: 0.5em;">
-      As noted in <em>“Intriguing properties of generative classifiers”</em>, <strong>generative models often exhibit a shape bias</strong>, emphasizing global structures over fine details. 
-      For person search, where both global structure and fine-grained details are essential, leveraging diffusion features while further enhancing high-frequency information can lead to even greater discriminative power
-      <span style="text-decoration: underline;">This motivates us to design <b style="color: #d9534f;">MSFRN</b>,</span> which explicitly counteracts the shape bias by reinforcing fine-grained representations.
-    </div>
-  </li>
-</ul>
-    <h3 style="text-align: left; margin-top: 1.2em; margin-bottom: 0.3em; color: #444; border-bottom: 1px solid #ccc; padding-bottom: 0.2em;"><em>DiffPS Framework</em></h3>
-    <p>
-      DiffPS features a frozen diffusion backbone with decoupled detection (<b>DGRPN</b>) and re-ID (<b>MSFRN, SFAN</b>) branches, each tailored to leverage distinct diffusion priors for robust person search.
-    </p>
-  </div>
-
-  <div class="figure">
-    <img src="images/DiffPS_arch.png" alt="Architecture Diagram">
-  </div>
-
-
-  <div class="section">
-  <h3 style="text-align: center; margin-bottom: 1em;">🔎 Module design in DiffPS</h3>
-  <p style="text-align: center; max-width: 800px; margin: 0 auto 2em;">
-    DiffPS decouples the person search task into two branches: detection and re-identification (Re-ID), and designs dedicated modules to fully exploit the strengths of the diffusion backbone.
-  </p>
-
-  <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px;">
-    <!-- MSFRN -->
-    <div style="flex: 1; min-width: 280px; background: #f5fff0; padding: 20px; border-left: 6px solid #28a745; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-      <h3 style="color: #28a745;">🔍 MSFRN (Re-ID)</h3>
-      <p>
-        MSFRN enhances fine-grained discriminative features by combining multi-scale fusion with hierarchical frequency decomposition (DWT-based). This mitigates the shape bias in diffusion features.
-      </p>
+    <div class="figure">
+      <img src="images/DiffPS_arch.png" alt="DiffPS architecture">
     </div>
 
-    <!-- SFAN -->
-    <div style="flex: 1; min-width: 280px; background: #fff0f5; padding: 20px; border-left: 6px solid #d63384; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-      <h3 style="color: #d63384;">🧠 SFAN (Re-ID)</h3>
-      <p>
-        SFAN leverages <em>cross-modal alignment</em> from the diffusion model to boost identity discrimination, refining re-ID representations with text-aware semantics.
-      </p>
+    <section>
+      <h2>Module Design</h2>
+      <p style="color: var(--text-muted); margin-bottom: 8px;">Dedicated modules for detection and re-ID that fully exploit the diffusion backbone.</p>
+      <div class="module-grid">
+        <div class="module-card detection">
+          <h3>📍 DGRPN (Detection)</h3>
+          <p>A region proposal network that harnesses text-conditioned priors to enhance localization and suppress background clutter.</p>
+        </div>
+        <div class="module-card reid-1">
+          <h3>🔍 MSFRN (Re-ID)</h3>
+          <p>Multi-scale frequency refinement with hierarchical DWT to mitigate shape bias and enhance fine-grained discriminative features.</p>
+        </div>
+        <div class="module-card reid-2">
+          <h3>🧠 SFAN (Re-ID)</h3>
+          <p>Semantic-adaptive feature aggregation using cross-modal alignment for text-aware re-ID representations.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Quantitative Results</h2>
+      <div class="figure">
+        <img src="images/SOTA_results.png" alt="State-of-the-art results on CUHK-SYSU and PRW">
+      </div>
+    </section>
+
+    <div class="cta">
+      <p>Curious to dive deeper? Check out our full paper for all the details.</p>
+      <div class="links">
+        <a href="https://arxiv.org/abs/2510.01841" class="btn btn-primary" target="_blank" rel="noopener">Read paper</a>
+        <a href="https://github.com/PerceptualAI-Lab/DiffPS" class="btn btn-secondary" target="_blank" rel="noopener">View code</a>
+      </div>
     </div>
 
-    <!-- DGRPN -->
-    <div style="flex: 1; min-width: 280px; background: #f0f8ff; padding: 20px; border-left: 6px solid #007acc; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-      <h3 style="color: #007acc;">📍 DGRPN (Detection)</h3>
-      <p>
-        A novel region proposal network tailored to diffusion features, DGRPN harnesses <em>text-conditioned priors</em> to enhance localization accuracy and suppress background clutter in detection.
-      </p>
-    </div>
-  </div>
-</div>
+    <section>
+      <h2>Citation</h2>
+      <div class="bibtex-wrap">
+        <pre class="bibtex">@inproceedings{kim2025leveraging,
+  title     = {Leveraging Prior Knowledge of Diffusion Model for Person Search},
+  author    = {Kim, Giyeol and Yang, Sooyoung and Oh, Jihyong and Kang, Myungjoo and Eom, Chanho},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages     = {20301--20312},
+  year      = {2025}
+}</pre>
+      </div>
+    </section>
+  </main>
 
-  <div class="figure">
-    <h2>Quantitative Results</h2>
-    <img src="images/SOTA_results.png" alt="SOTA Results">
-  </div>
-
-
-  <div class="section">
-    <p style="text-align: center; font-size: 1.2em; margin-bottom: 1em;">
-      🎉 Curious to dive deeper? Check out our full paper above for all the exciting details! 📄
-    </p>
-    <h2>BibTeX</h2>
-    <div class="bibtex">
-@inproceedings{kim2025diffps,
-  title={Leveraging Prior Knowledge of Diffusion Model for Person Search},
-  author={Kim, Giyeol and Yang, Sooyoung and Oh, Jihyong and Kang, Myungjoo and Eom, Chanho},
-  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
-  year={2025}
-}
-    </div>
-  </div>
-
+  <script>
+    document.querySelectorAll('.accordion-trigger').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var item = this.closest('.accordion-item');
+        var wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.accordion-item').forEach(function(i) { i.classList.remove('open'); });
+        if (!wasOpen) item.classList.add('open');
+        this.setAttribute('aria-expanded', !wasOpen);
+      });
+    });
+  </script>
 </body>
-<script>
-function toggleContent(id) {
-  const el = document.getElementById(id);
-  const header = el.previousElementSibling;
-  const arrow = header.querySelector("span");
-
-  if (el.style.display === 'none' || el.style.display === '') {
-    el.style.display = 'block';
-    arrow.textContent = '🔼';
-  } else {
-    el.style.display = 'none';
-    arrow.textContent = '🔽';
-  }
-}
-</script>
 </html>
