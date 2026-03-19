@@ -67,6 +67,8 @@ Place the dataset under the path specified in the config:
 
 Default path in the provided configs is `../dataset/PRW` or `../dataset/CUHK-SYSU`. Adjust to your directory structure.
 
+For downloading and preparing **CUHK-SYSU** and **PRW**, please refer to the dataset instructions in [SeqNet](https://github.com/serend1p1ty/SeqNet/tree/master).
+
 ---
 
 ## Training
@@ -102,6 +104,8 @@ You can override any config key via `--opts`, e.g. `OUTPUT_DIR`, `DATASET.BATCH_
 - Consider using a GPU with more VRAM when training with cross-attention features enabled.
 
 **Tip:** Extracting **diffusion features** and **cross attention maps** once and **saving them locally**, then loading from disk during training, is much faster and more memory-efficient than computing them on the fly. We recommend this approach when GPU memory is limited.
+
+**Note:** We previously experienced an unexpected code loss and have now almost fully recovered the repository. If you have any questions or find something missing, feel free to ask.
 
 ---
 
