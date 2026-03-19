@@ -340,6 +340,11 @@
       width: 100%;
       display: block;
     }
+    .figure--70 {
+      max-width: 70%;
+      margin-left: auto;
+      margin-right: auto;
+    }
     .figure-caption {
       text-align: center;
       font-size: 0.9rem;
@@ -387,7 +392,6 @@
     <div class="wrapper">
       <div class="badge">🏆 ICCV 2025 Highlight</div>
       <h1><span class="brand">DiffPS</span>: Leveraging Prior Knowledge of Diffusion Model for Person Search</h1>
-      <p class="subtitle">Frozen diffusion backbone with decoupled detection and re-ID — state-of-the-art on CUHK-SYSU and PRW.</p>
       <div class="authors">
         <a href="https://sites.google.com/view/pai-lab/home?authuser=0" target="_blank" rel="noopener">Giyeol Kim</a><sup>1*</sup>,
         <a href="https://ncia.snu.ac.kr/" target="_blank" rel="noopener">Sooyoung Yang</a><sup>2*</sup>,
@@ -408,16 +412,15 @@
   </header>
 
   <main class="wrapper">
-    <div class="teaser">
-      <img src="images/teaser_new.png" alt="DiffPS Teaser: diffusion features vs ImageNet backbones">
-    </div>
-
     <section>
       <h2>Research Motivation</h2>
       <div class="card motivation">
         <p><strong>Most existing person search models rely on ImageNet pre-trained backbones.</strong> While these backbones provide decent fine-grained features, they often lack the rich visual priors required for person search in diverse and complex scenes.</p>
         <p><strong>Conventional approaches also rely on a shared backbone for both person detection and re-identification</strong>, leading to conflicting optimization objectives and degraded performance.</p>
         <p><strong>We address these limitations by leveraging a pre-trained diffusion model</strong>, which offers richer visual semantics and enables task-specific decoupling to avoid feature interference.</p>
+      </div>
+      <div class="teaser">
+        <img src="images/teaser_new.png" alt="DiffPS Teaser: diffusion features vs ImageNet backbones">
       </div>
     </section>
 
@@ -504,7 +507,7 @@
 
     <section>
       <h2>Quantitative Results</h2>
-      <div class="figure">
+      <div class="figure figure--70">
         <img src="images/SOTA_results.png" alt="State-of-the-art results on CUHK-SYSU and PRW">
       </div>
     </section>
