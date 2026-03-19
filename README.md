@@ -19,6 +19,12 @@
     <sup>*</sup>Co-first authors (equal contribution) &nbsp;|&nbsp; <sup>†</sup>Corresponding author
 </div>
 
+<div>
+    <a href='https://perceptualai-lab.github.io/DiffPS/'>Project Page</a> &nbsp;|&nbsp;
+    <a href='https://openaccess.thecvf.com/content/ICCV2025/papers/Kim_Leveraging_Prior_Knowledge_of_Diffusion_Model_for_Person_Search_ICCV_2025_paper.pdf'>Paper (ICCV)</a> &nbsp;|&nbsp;
+    <a href='https://arxiv.org/pdf/2510.01841'>arXiv</a>
+</div>
+
 </div>
 
 ---
