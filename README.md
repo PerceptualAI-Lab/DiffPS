@@ -2,8 +2,6 @@
 
 # [ICCV 2025 Highlight] DiffPS: Leveraging Prior Knowledge of Diffusion Model for Person Search
 
-**Official PyTorch implementation**
-
 <div>
     <a href='https://sites.google.com/view/pai-lab/home?authuser=0' target='_blank'>Giyeol Kim</a><sup>1*</sup> &nbsp;
     <a href='https://ncia.snu.ac.kr/' target='_blank'>Sooyoung Yang</a><sup>2*</sup> &nbsp;
@@ -32,24 +30,12 @@
 
 ---
 
-## About
-
-This repository is the **official implementation** of **"DiffPS: Leveraging Prior Knowledge of Diffusion Model for Person Search"** (ICCV 2025 Highlight). DiffPS leverages internal representations of a pre-trained diffusion model for person search (detection + re-identification).
-
----
 
 ## Installation
 
-### 1. Create environment and install PyTorch
+### 1. Diffusion feature extraction (required, do this first)
 
-Create a conda environment (Python 3.9 recommended) and install PyTorch with CUDA support. See [PyTorch](https://pytorch.org/get-started/locally/) for your CUDA version.
-
-```bash
-conda create -n diffps python=3.9
-conda activate diffps
-# Install PyTorch (example for CUDA 11.8)
-pip install torch torchvision torchaudio
-```
+**Environment setup for diffusion features is required.** Follow the installation guide in [generic-diffusion-feature](https://github.com/Darkbblue/generic-diffusion-feature) (NeurIPS'24) to configure your environment. That repository provides the diffusion model setup, dependency versions, and layer interfaces used in this codebase.
 
 ### 2. Install dependencies from requirements.txt
 
@@ -69,10 +55,6 @@ cd pytorch_wavelets && pip install . && cd ..
 # git clone https://github.com/fbcotter/pytorch_wavelets
 # cd pytorch_wavelets && pip install . && cd ..
 ```
-
-### 4. (Optional) Diffusion feature extraction
-
-If you need to extract or customize diffusion features, you may refer to [generic-diffusion-feature](https://github.com/Darkbblue/generic-diffusion-feature) (NeurIPS'24) for compatible diffusion feature interfaces and layer naming.
 
 ---
 
@@ -119,6 +101,8 @@ You can override any config key via `--opts`, e.g. `OUTPUT_DIR`, `DATASET.BATCH_
 - Check compatibility between your PyTorch, CUDA, and xformers versions; some xformers builds use more memory for attention.
 - Consider using a GPU with more VRAM when training with cross-attention features enabled.
 
+**Tip:** Extracting **diffusion features** and **cross attention maps** once and **saving them locally**, then loading from disk during training, is much faster and more memory-efficient than computing them on the fly. We recommend this approach when GPU memory is limited.
+
 ---
 
 ## Citation
@@ -126,11 +110,12 @@ You can override any config key via `--opts`, e.g. `OUTPUT_DIR`, `DATASET.BATCH_
 If you find this work useful, please cite:
 
 ```bibtex
-@inproceedings{diffps2025iccv,
-  title     = {DiffPS: Leveraging Prior Knowledge of Diffusion Model for Person Search},
-  author    = {Kim, Giyeol and Yang, Sooyoung and Oh, Jihyong and Kang, Myungjoo and Eom, Chanho},
-  booktitle = {ICCV},
-  year      = {2025},
+@inproceedings{kim2025leveraging,
+  title={Leveraging prior knowledge of diffusion model for person search},
+  author={Kim, Giyeol and Yang, Sooyoung and Oh, Jihyong and Kang, Myungjoo and Eom, Chanho},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={20301--20312},
+  year={2025}
 }
 ```
 
@@ -138,5 +123,6 @@ If you find this work useful, please cite:
 
 ## References
 
+- [SEAS](https://github.com/whbdmu/SEAS) — Person search method. This codebase is built upon SEAS.
 - [generic-diffusion-feature](https://github.com/Darkbblue/generic-diffusion-feature) — Not All Diffusion Model Activations Have Been Evaluated as Discriminative Features (NeurIPS 2024).
 - [pytorch_wavelets](https://pytorch-wavelets.readthedocs.io/en/latest/readme.html) — 2D discrete / dual-tree complex wavelet transforms in PyTorch.
