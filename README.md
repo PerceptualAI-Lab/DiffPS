@@ -101,13 +101,13 @@ You can override any config key via `--opts`, e.g. `OUTPUT_DIR`, `DATASET.BATCH_
 
 ---
 
-## ⚠️ Note on GPU memory (xformers / cross attention)
+## ⚠️ Note on GPU memory (xformers)
 
-**Cross attention map extraction** in the diffusion backbone can consume a large amount of GPU memory depending on the **xformers** (and related) version. If you run into OOM (out-of-memory) errors:
+There are **known issues with certain xformers versions** that can cause high GPU memory usage when the diffusion backbone computes cross-attention maps (e.g., for DGRPN). If you run into OOM (out-of-memory) errors:
 
 - Try reducing `DATASET.BATCH_SIZE` in the config or `--opts`.
-- Check compatibility between your PyTorch, CUDA, and xformers versions; some xformers builds use more memory for attention.
-- Consider using a GPU with more VRAM when training with cross-attention features enabled.
+- Check **xformers compatibility** with your PyTorch and CUDA versions; some builds are known to use significantly more memory for attention. Updating or switching xformers version may help.
+- Consider using a GPU with more VRAM if the issue persists.
 
 **Tip:** Extracting **diffusion features** and **cross attention maps** once and **saving them locally**, then loading from disk during training, is much faster and more memory-efficient than computing them on the fly. We recommend this approach when GPU memory is limited.
 
