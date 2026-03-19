@@ -33,7 +33,7 @@
 
 ## Installation
 
-### 1. Diffusion feature extraction (required, do this first)
+### 1. Diffusion feature extraction
 
 **Environment setup for diffusion features is required.** Follow the installation guide in [generic-diffusion-feature](https://github.com/Darkbblue/generic-diffusion-feature) (NeurIPS'24) to configure your environment. That repository provides the diffusion model setup, dependency versions, and layer interfaces used in this codebase.
 
