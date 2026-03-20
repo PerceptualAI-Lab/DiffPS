@@ -1,5 +1,4 @@
 import torch.nn as nn
-import pdb
 import numpy as np
 import torch
 
@@ -58,5 +57,5 @@ if __name__ == "__main__":
     
     upsample = LearnableUpsample(in_channels=640, out_channels=640)
     print(sum([p.numel() for p in upsample.parameters()]))
-    pdb.set_trace()
+
 

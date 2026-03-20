@@ -1,6 +1,7 @@
 DATASET:
   TYPE: CUHK_SYSU
-  PATH: ../dataset/PRW
+  # Edit to your CUHK-SYSU root (or override via train.py --opts DATASET.PATH ...)
+  PATH: ../dataset/CUHK-SYSU
   BATCH_SIZE: 5
 SOLVER:
   MAX_EPOCHS: 30

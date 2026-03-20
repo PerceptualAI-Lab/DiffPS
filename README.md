@@ -43,6 +43,8 @@
 
 **Environment setup for diffusion features is required.** Follow the installation guide in [generic-diffusion-feature](https://github.com/Darkbblue/generic-diffusion-feature) (NeurIPS'24) to configure your environment. That repository provides the diffusion model setup, dependency versions, and layer interfaces used in this codebase.
 
+Optional: if you clone it next to this repo as `generic-diffusion-feature/`, `models/diffps.py` will pick up `generic-diffusion-feature/feature` automatically. Otherwise set **`DIFFUSION_FEATURE_PATH`** to the absolute path of that `feature` directory.
+
 ### 2. Install dependencies from requirements.txt
 
 ```bash

@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 
-class DGPRNModulator(nn.Module):
+class DGRPNModulator(nn.Module):
     def __init__(self, tau=0.5, delta=3.0, peak_window=7, neigh_window=9, topk=50,
                  learnable_beta=True, init_beta=1.0, init_gamma=0.5):
         super().__init__()

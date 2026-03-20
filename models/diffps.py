@@ -11,6 +11,8 @@ from torchvision.ops import MultiScaleRoIAlign
 from torchvision.ops import boxes as box_ops
 
 from typing import Tuple, List, Union, Dict, Optional, Any
+import os
+from pathlib import Path
 
 from .backbones.resnet import ResNetBackbone, ResNetHead
 from .backbones.convnext import ConvNeXtBackbone, ConvNeXtHead
@@ -19,14 +21,34 @@ from .losses.oim import OIMLoss
 
 from models.embedder import MultiGranularityEmbedding, GlobalFeatureEmbedding, Embedder
 from models.sfan import SFAN
-from models.dgrpn import DGPRNModulator
+from models.dgrpn import DGRPNModulator
 
 from utils.detection import Sampler, compute_iou, compute_centerness
 from utils.general import normalize_weight_zero_bias, Pack
 import sys
-sys.path.append('/home/work/giyeol/generic-diffusion-feature/feature')
-from diffusion_feature import FeatureExtractor
-from models.aggregation_network import AggregationNetwork, AggregationNetwork2, DetectionAggregationNetwork, Frq_AggregationNetwork
+
+# generic-diffusion-feature: https://github.com/Darkbblue/generic-diffusion-feature
+# Set DIFFUSION_FEATURE_PATH to the repo's `feature` folder, or clone as a sibling:
+#   <workspace>/generic-diffusion-feature/feature
+_repo_root = Path(__file__).resolve().parent.parent.parent
+_default_diffusion_feature = _repo_root / "generic-diffusion-feature" / "feature"
+_diffusion_feature_dir = Path(
+    os.environ.get("DIFFUSION_FEATURE_PATH", str(_default_diffusion_feature))
+).expanduser().resolve()
+if _diffusion_feature_dir.is_dir():
+    _p = str(_diffusion_feature_dir)
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+try:
+    from diffusion_feature import FeatureExtractor
+except ImportError as _e:
+    raise ImportError(
+        "Cannot import diffusion_feature. Install generic-diffusion-feature per README, "
+        "or set env DIFFUSION_FEATURE_PATH to that repo's `feature` directory "
+        f"(tried {_diffusion_feature_dir})."
+    ) from _e
+from models.aggregation_network import DetectionAggregationNetwork, Frq_AggregationNetwork
 
 
 class Initializer:
@@ -83,8 +105,6 @@ class DiffPS(Module):
         )
 
         ''' build feature extractor -------------------------------------------------------------------------------- '''
-        self.feature_map_size = cfg.FEATURE_EXTRACTOR.FEATURE_MAP_SIZE
-        
         self.detection_layer_dict = dict(
             layer={layer: True for layer in cfg.FEATURE_EXTRACTOR.DETECTION_LAYER}
         )
@@ -124,14 +144,8 @@ class DiffPS(Module):
             self.pants_prompt_embeds,
             self.shoes_prompt_embeds
         ])
-        self.register_buffer("text_embeds", text_embeds)       
+        self.register_buffer("text_embeds", text_embeds)
 
-        # self.reid_aggregation_network = AggregationNetwork(
-        # projection_dim=cfg.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS,
-        # feature_dims=cfg.FEATURE_EXTRACTOR.REID_AGGNET_FEATURE_DIMS,
-        # device=cfg.DEVICE,
-        # )
-        
         self.detection_aggregation_network = DetectionAggregationNetwork(
             projection_dim=cfg.FEATURE_EXTRACTOR.AGGNET_OUTPUT_CHANNELS,
             feature_dims=cfg.FEATURE_EXTRACTOR.DETECTION_AGGNET_FEATURE_DIMS,
@@ -145,7 +159,7 @@ class DiffPS(Module):
             frq_version=cfg.FEATURE_EXTRACTOR.FRQ_VERSION,
         ) 
         
-        self.dgrpn = DGPRNModulator(tau=0.7, delta=5.0, peak_window=7, neigh_window=9, topk=50,
+        self.dgrpn = DGRPNModulator(tau=0.7, delta=5.0, peak_window=7, neigh_window=9, topk=50,
                      learnable_beta=True, init_beta=1.0, init_gamma=0.0)
         
         ''' build backbone head ------------------------------------------------------------------------------------ '''
@@ -327,36 +341,21 @@ class DiffPS(Module):
         det_feats = next(iter(detection_features.values()))
         
         reid_features = {
-            k: v for k, v in combined_features.items() 
+            k: v for k, v in combined_features.items()
             if k in self.reid_layer_dict['layer'] and 'map' not in k.lower()
         }
 
-        reid_concat_feats = []
-            
-        for layer_name, tensor in reid_features.items():
-            resized_tensor = torch.nn.functional.interpolate(
-                tensor,
-                size=self.feature_map_size,
-                mode='bilinear',
-                align_corners=False
-            )
-            reid_concat_feats.append(resized_tensor)
-        
-        reid_concat_feats = torch.cat(reid_concat_feats, dim=1) # [bs, 2560, 160, 160]
-        agg_detection_feats = self.detection_aggregation_network(det_feats.float()) # [bs, 1024, 160, 160]
-        detection_attn_map = None
+        agg_detection_feats = self.detection_aggregation_network(det_feats.float())
         detection_attn_map = get_attention_map(combined_features['up-level3-repeat0-vit-block0-cross-map'])
-        dg_detection_feats = self.dgrpn(agg_detection_feats, detection_attn_map) # [bs, 1024, 160, 160]
+        dg_detection_feats = self.dgrpn(agg_detection_feats, detection_attn_map)
 
-        # agg_reid_feats = self.reid_aggregation_network(reid_concat_feats.float())
         reid_features_float32 = {k: v.float() for k, v in reid_features.items()}
-        reid_features_agg = self.reid_aggregation_network(reid_features_float32) 
-        reid_frq_feats = self.reid_frq_aggregation_network(reid_features_agg, training=self.training)
+        reid_frq_feats = self.reid_frq_aggregation_network(
+            reid_features_float32, training=self.training
+        )
 
         detection_feats = {"feat_detection": dg_detection_feats}
-        # reid_feats = {"feat_reid": agg_reid_feats} # reid_feats['feat_reid'].shape --> [bs, 1024, 160, 160]
-        reid_feats = {"feat_reid": reid_frq_feats} # reid_feats['feat_reid'].shape --> [bs, 1024, 160, 160]
-        import pdb; pdb.set_trace()
+        reid_feats = {"feat_reid": reid_frq_feats}
         
         if not use_gt_as_det:
             det_targets = [
